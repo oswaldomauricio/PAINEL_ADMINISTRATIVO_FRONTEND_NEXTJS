@@ -16,12 +16,12 @@ import { Toaster } from "@/components/ui/toaster"
 // More info: https://nextjs.org/docs/app/building-your-application/optimizing/metadata
 export const metadata: Metadata = {
   title: {
-    template: "%s | Shadboard",
-    default: "Shadboard",
+    template: "%s | Norte Auto Peças",
+    default: "Norte Auto Peças",
   },
   description: "",
   // metadataBase: new URL("/"),
-  // metadataBase: new URL(process.env.BASE_URL as string) || new URL("/"),
+  metadataBase: new URL(process.env.BASE_URL as string),
 }
 
 // Define fonts for the application
@@ -52,7 +52,7 @@ export default function RootLayout(props: { children: ReactNode }) {
           cairoFont.variable // Include Cairo font variable
         )}
       >
-        <Providers locale="en">
+        <Providers locale="pt-BR">
           {children}
           <Toaster />
           <Sonner />

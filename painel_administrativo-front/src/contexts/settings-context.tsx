@@ -11,7 +11,7 @@ export const defaultSettings: SettingsType = {
   mode: "system",
   radius: 0.5,
   layout: "vertical",
-  locale: "en",
+  locale: "pt-BR",
 }
 
 export const SettingsContext = createContext<
