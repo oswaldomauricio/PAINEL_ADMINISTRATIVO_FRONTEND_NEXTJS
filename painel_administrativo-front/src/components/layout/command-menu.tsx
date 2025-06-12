@@ -125,7 +125,7 @@ export function CommandMenu({ buttonClassName, ...props }: CommandMenuProps) {
         variant="outline"
         size="lg"
         className={cn(
-          "max-w-64 w-full justify-start px-3 rounded-md bg-muted/50 text-muted-foreground",
+          "max-w-64 w-full justify-start px-3 rounded-md bg-border/50 text-muted-foreground",
           buttonClassName
         )}
         onClick={() => setOpen(true)}

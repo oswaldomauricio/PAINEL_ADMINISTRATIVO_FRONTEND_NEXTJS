@@ -43,11 +43,11 @@ export default function RootLayout(props: { children: ReactNode }) {
   const { children } = props
 
   return (
-    <html lang="en" dir="ltr" suppressHydrationWarning>
+    <html lang="pt-BR" dir="ltr" suppressHydrationWarning>
       <body
         className={cn(
           "[&:lang(en)]:font-lato [&:lang(ar)]:font-cairo", // Set font styles based on the language
-          "bg-background text-foreground antialiased overscroll-none", // Set background, text, , anti-aliasing styles, and overscroll behavior
+          "bg-[#ffffff] text-foreground antialiased overscroll-none", // Set background, text, , anti-aliasing styles, and overscroll behavior
           latoFont.variable, // Include Lato font variable
           cairoFont.variable // Include Cairo font variable
         )}

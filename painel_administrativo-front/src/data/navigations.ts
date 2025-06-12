@@ -2,12 +2,12 @@ import type { NavigationType } from "@/types"
 
 export const navigationsData: NavigationType[] = [
   {
-    title: "Main",
+    title: "Painel",
     items: [
       {
-        title: "Home",
-        href: "/",
-        iconName: "House",
+        title: "Garantias",
+        href: "/garantia",
+        iconName: "Wrench",
       },
     ],
   },

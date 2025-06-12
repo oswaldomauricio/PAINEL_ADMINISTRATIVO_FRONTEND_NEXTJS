@@ -162,11 +162,11 @@
 
 :root {
   --background: 0 0% 100%;
-  --foreground: 240 10% 3.9%;
+  --foreground: 209 100% 8%;
   --card: 0 0% 100%;
-  --card-foreground: 240 10% 3.9%;
+  --card-foreground: 209 100% 8%;
   --popover: 0 0% 100%;
-  --popover-foreground: 240 10% 3.9%;
+  --popover-foreground: 209 100% 8%;
   --primary: 240 5.9% 10%;
   --primary-foreground: 0 0% 98%;
   --secondary: 240 4.8% 95.9%;
@@ -181,7 +181,7 @@
   --success-foreground: 0 0% 98%;
   --border: 240 5.9% 90%;
   --input: 240 5.9% 90%;
-  --ring: 240 10% 3.9%;
+  --ring: 209 100% 8%;
   --radius: 0.5rem;
   --chart-1: 220 70% 50%;
   --chart-2: 160 60% 45%;
@@ -227,11 +227,12 @@
   --fc-now-indicator-color: hsl(var(--destructive));
 }
 .dark {
-  --background: 240 10% 3.9%;
+  --background: 209 100% 2%;
+  --background-secondary: 209 100% 10%;
   --foreground: 0 0% 98%;
-  --card: 240 10% 3.9%;
+  --card: 209 100% 2%;
   --card-foreground: 0 0% 98%;
-  --popover: 240 10% 3.9%;
+  --popover: 209 100% 2%;
   --popover-foreground: 0 0% 98%;
   --primary: 0 0% 98%;
   --primary-foreground: 240 5.9% 10%;

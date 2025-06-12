@@ -1,5 +1,7 @@
 {
   "editor.formatOnSave": true,
+  "workbench.tree.expandMode": "singleClick",
+  "workbench.tree.indent": 12,
   "editor.formatOnPaste": false,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.codeActionsOnSave": {
