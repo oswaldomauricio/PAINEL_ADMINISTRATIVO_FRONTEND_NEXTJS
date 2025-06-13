@@ -6,7 +6,7 @@ export const navigationsData: NavigationType[] = [
     items: [
       {
         title: "Garantias",
-        href: "/garantia",
+        href: "/",
         iconName: "Wrench",
       },
     ],

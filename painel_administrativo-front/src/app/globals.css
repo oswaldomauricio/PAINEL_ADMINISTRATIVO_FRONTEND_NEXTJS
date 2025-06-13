@@ -162,7 +162,7 @@
 
 :root {
   --background: 0 0% 100%;
-  --foreground: 209 100% 8%;
+  --foreground: 209 100% 10%;
   --card: 0 0% 100%;
   --card-foreground: 209 100% 8%;
   --popover: 0 0% 100%;
@@ -227,8 +227,8 @@
   --fc-now-indicator-color: hsl(var(--destructive));
 }
 .dark {
-  --background: 209 100% 2%;
-  --background-secondary: 209 100% 10%;
+  --background: 209 100% 18%;
+  --background-secondary: 209 100% 2%;
   --foreground: 0 0% 98%;
   --card: 209 100% 2%;
   --card-foreground: 0 0% 98%;
@@ -236,18 +236,18 @@
   --popover-foreground: 0 0% 98%;
   --primary: 0 0% 98%;
   --primary-foreground: 240 5.9% 10%;
-  --secondary: 240 3.7% 15.9%;
+  --secondary: 209 100% 8%;
   --secondary-foreground: 0 0% 98%;
-  --muted: 240 3.7% 15.9%;
+  --muted: 209 100% 8%;
   --muted-foreground: 240 5% 64.9%;
-  --accent: 240 3.7% 15.9%;
+  --accent: 209 100% 8%;
   --accent-foreground: 0 0% 98%;
   --destructive: 0 84.2% 35.2%;
   --destructive-foreground: 0 0% 98%;
   --success: 142.4 71.8% 29.2%;
   --success-foreground: 0 0% 98%;
-  --border: 240 3.7% 15.9%;
-  --input: 240 3.7% 15.9%;
+  --border: 209 100% 8%;
+  --input: 209 100% 8%;
   --ring: 240 4.9% 83.9%;
   --chart-1: 220 70% 50%;
   --chart-2: 160 60% 45%;
