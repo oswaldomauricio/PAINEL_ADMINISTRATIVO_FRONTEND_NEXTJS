@@ -188,8 +188,8 @@
   --chart-3: 30 80% 55%;
   --chart-4: 280 65% 60%;
   --chart-5: 340 75% 55%;
-  --sidebar-background: var(--background);
-  --sidebar-foreground: var(--foreground);
+  --sidebar-background: var(--foreground);
+  --sidebar-foreground: var(--background);
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: var(--primary-foreground);
   --sidebar-accent: var(--accent);
@@ -226,7 +226,7 @@
   --fc-today-bg-color: hsl(var(--primary) / 0.15);
   --fc-now-indicator-color: hsl(var(--destructive));
 }
-.dark {
+/* .dark {
   --background: 209 100% 18%;
   --background-secondary: 209 100% 2%;
   --foreground: 0 0% 98%;
@@ -254,4 +254,4 @@
   --chart-3: 30 80% 55%;
   --chart-4: 280 65% 60%;
   --chart-5: 340 75% 55%;
-}
+} */
