@@ -7,7 +7,17 @@ export const navigationsData: NavigationType[] = [
       {
         title: "Garantias",
         href: "/",
-        iconName: "Wrench",
+        iconName: "Package",
+      },
+      {
+        title: "Garantia",
+        href: "/garantias",
+        iconName: "Package",
+      },
+      {
+        title: "divergências",
+        href: "/divergencias",
+        iconName: "Package",
       },
     ],
   },
