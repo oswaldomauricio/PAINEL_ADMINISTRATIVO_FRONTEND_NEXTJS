@@ -1,5 +1,7 @@
 import { Cairo, Lato } from "next/font/google"
 
+import "@ant-design/v5-patch-for-react-19"
+
 import { cn } from "@/lib/utils"
 
 import "./globals.css"
@@ -16,8 +18,8 @@ import { Toaster } from "@/components/ui/toaster"
 // More info: https://nextjs.org/docs/app/building-your-application/optimizing/metadata
 export const metadata: Metadata = {
   title: {
-    template: "%s | Shadboard",
-    default: "Shadboard",
+    template: "%s | Norte auto Peças",
+    default: "Painel | Norte auto Peças",
   },
   description: "",
   // metadataBase: new URL("/"),
