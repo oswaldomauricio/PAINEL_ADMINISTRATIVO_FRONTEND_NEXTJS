@@ -62,7 +62,7 @@ export default function BasicTableGarantia({ search }: BasicTableProps) {
               filteredData.map((item) => (
                 <TableRow
                   key={item.id}
-                  onClick={() => router.push(`/ticket/garantia/${item.id}`)}
+                  onClick={() => router.push(`/garantias/${item.id}`)}
                 >
                   <TableCell className="font-medium">{item.id}</TableCell>
                   <TableCell>{item.store}</TableCell>

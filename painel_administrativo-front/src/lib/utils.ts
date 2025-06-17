@@ -3,7 +3,7 @@ import { format, formatDistanceToNow, intervalToDuration } from "date-fns"
 import { twMerge } from "tailwind-merge"
 import { z } from "zod"
 
-import type { FormatStyleType, LocaleType } from "@/types"
+import type { LocaleType } from "@/types"
 import type { ClassValue } from "clsx"
 
 export function cn(...inputs: ClassValue[]) {
@@ -309,7 +309,8 @@ export function wait(ms: number = 250) {
 
 export function formatOverviewCardValue(
   value: number,
-  formatStyle: FormatStyleType
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  formatStyle: any
 ): string | number {
   switch (formatStyle) {
     case "percent":

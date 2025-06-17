@@ -62,7 +62,7 @@ export default function BasicTableDivergencia({ search }: BasicTableProps) {
               filteredData.map((item) => (
                 <TableRow
                   key={item.id}
-                  onClick={() => router.push(`/ticket/divergencia/${item.id}`)}
+                  onClick={() => router.push(`/divergencias/${item.id}`)}
                 >
                   <TableCell className="font-medium">{item.id}</TableCell>
                   <TableCell>{item.store}</TableCell>
