@@ -11,6 +11,7 @@ import { ChevronLeft, Package, SendHorizontal } from "lucide-react"
 import type { Editor } from "tinymce"
 
 import { Button } from "@/components/ui/button"
+import UploadComponent from "@/app/components/upload"
 
 const BundledEditor = dynamic(() => import("@/BundledEditor"), {
   ssr: false,
@@ -180,7 +181,9 @@ export default function NovoPage() {
                 }}
               />
             </div>
-            <div className="col-span-2 row-start-7">test</div>
+            <div className="col-span-2 row-start-7">
+              <UploadComponent />
+            </div>
           </Form>
         </div>
       </div>
