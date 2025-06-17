@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import BasicTable from "../../../components/table"
+import BasicTableGarantia from "@/app/components/table_garantia"
 
 export default function GarantiaPage() {
   const [search, setSearch] = useState("")
@@ -77,7 +77,7 @@ export default function GarantiaPage() {
           </InputGroup>
         </div>
         <div className="col-span-3 row-start-4 items-center">
-          <BasicTable search={search} />
+          <BasicTableGarantia search={search} />
         </div>
       </div>
     </div>

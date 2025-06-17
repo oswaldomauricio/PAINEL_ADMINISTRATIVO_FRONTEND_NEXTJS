@@ -1,5 +1,7 @@
 "use client"
 
+import { useRouter } from "next/navigation"
+
 import { divergenciasData } from "../(modulos)/_data/divergenciasData"
 
 import { Card, CardContent } from "@/components/ui/card"
@@ -16,7 +18,8 @@ type BasicTableProps = {
   search: string
 }
 
-export default function BasicTable({ search }: BasicTableProps) {
+export default function BasicTableDivergencia({ search }: BasicTableProps) {
+  const router = useRouter()
   const filteredData = divergenciasData.filter(
     (item) =>
       item.id.toLowerCase().includes(search.toLowerCase()) ||
@@ -57,7 +60,10 @@ export default function BasicTable({ search }: BasicTableProps) {
               </TableRow>
             ) : (
               filteredData.map((item) => (
-                <TableRow key={item.id}>
+                <TableRow
+                  key={item.id}
+                  onClick={() => router.push(`/ticket/divergencia/${item.id}`)}
+                >
                   <TableCell className="font-medium">{item.id}</TableCell>
                   <TableCell>{item.store}</TableCell>
                   <TableCell>

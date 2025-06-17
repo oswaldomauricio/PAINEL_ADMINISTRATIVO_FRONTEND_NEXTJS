@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import BasicTable from "../../../components/table"
+import BasicTableDivergencia from "../../../components/table_divergencia"
 
 export default function DivergenciaPage() {
   const [search, setSearch] = useState("")
@@ -71,7 +71,7 @@ export default function DivergenciaPage() {
           </InputGroup>
         </div>
         <div className="col-span-3 row-start-4 items-center">
-          <BasicTable search={search} />
+          <BasicTableDivergencia search={search} />
         </div>
       </div>
     </div>
