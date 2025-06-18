@@ -6,7 +6,7 @@ import dynamic from "next/dynamic"
 import Link from "next/link"
 import { MinusCircleOutlined } from "@ant-design/icons"
 import { DatePicker, Form, Input, Select, Space } from "antd"
-import { ChevronLeft, Package, SendHorizontal } from "lucide-react"
+import { ChevronLeft, SendHorizontal, Wrench } from "lucide-react"
 
 import type { Editor } from "tinymce"
 
@@ -43,7 +43,7 @@ export default function NovoPage() {
       <div className="grid grid-cols-2 grid-rows-[auto_auto_auto_1fr] gap-y-2">
         <div className="col-span-2 row-start-1 py-2">
           <h1 className="text-3xl font-bold flex items-center gap-4">
-            <Package className="h-8 w-8 text-red-500" />
+            <Wrench className="h-8 w-8 text-red-500" />
             <span>Inserir nova solicitação de garantia</span>
           </h1>
           <Form
@@ -153,7 +153,6 @@ export default function NovoPage() {
                 onInit={(_evt: unknown, editor: Editor) =>
                   (editorRef.current = editor)
                 }
-                // initialValue="<p>${data.loja}</p>"
                 init={{
                   height: 500,
                   menubar: false,

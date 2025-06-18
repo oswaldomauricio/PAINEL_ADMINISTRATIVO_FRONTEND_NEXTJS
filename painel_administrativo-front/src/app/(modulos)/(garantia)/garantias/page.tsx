@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Package, Search, SendHorizontal } from "lucide-react"
+import { Plus, Search, Wrench } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { CardContent } from "@/components/ui/card"
@@ -23,21 +23,21 @@ export default function GarantiaPage() {
   return (
     <div className="container py-4">
       <div className="grid grid-cols-3 grid-rows-[auto_auto_auto_1fr] gap-y-2">
-        <div className="col-span-2 row-start-1 py-2">
+        <div className="col-span-3 row-start-1 py-2">
           <h1 className="text-3xl font-bold flex items-center gap-4">
-            <Package className="h-8 w-8 text-red-500" />
+            <Wrench className="h-8 w-8 text-red-500" />
             <span>Garantias</span>
           </h1>
-          <div className="flex flex-row items-start gap-8">
+          <div className="flex flex-row items-start justify-between w-full">
             <p className="text-lg font-semibold py-1">
               Relatório de solicitações de garantias
             </p>
-            <Button variant="default" className="w-2/8 gap-4">
+            <Button variant="default" className="w-2/12 gap-4">
               <Link
                 href="/garantias/novo"
                 className="gap-2 flex items-center flex-row"
               >
-                <SendHorizontal className="h-4 w-4" />
+                <Plus className="h-4 w-4" />
                 Nova solicitação
               </Link>
             </Button>
