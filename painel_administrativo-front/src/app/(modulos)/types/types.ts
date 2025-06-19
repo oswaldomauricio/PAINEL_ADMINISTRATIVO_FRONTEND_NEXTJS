@@ -4,7 +4,7 @@ export interface divergenciasType {
   date: Date // data
   days_remaining: number // dias restantes
   supplier: string // fornecedor
-  sales_invoice: string // nota fiscal de venda
+  salesNote: string // nota fiscal de venda
   status: "Pendente" | "Aprovada" | "Rejeitada" // status
   description: string // descrição
 }
@@ -15,7 +15,7 @@ export interface garantiasType {
   date: Date // data
   days_remaining: number // dias restantes
   supplier: string // fornecedor
-  sales_invoice: string // nota fiscal de venda
+  salesNote: string // nota fiscal de venda
   status: "Pendente" | "Aprovada" | "Rejeitada" // status
   description: string // descrição
 }
