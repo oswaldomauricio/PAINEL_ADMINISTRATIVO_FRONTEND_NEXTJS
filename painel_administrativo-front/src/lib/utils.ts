@@ -101,8 +101,8 @@ export function ratingToPercentage(
 
 export function formatCurrency(
   value: number,
-  locales: LocaleType = "en",
-  currency: string = "USD"
+  locales: LocaleType = "pt-br",
+  currency: string = "BRL"
 ) {
   return new Intl.NumberFormat(locales, {
     style: "currency",
@@ -120,6 +120,17 @@ export function formatPercent(value: number, locales: LocaleType = "en") {
 
 export function formatDate(value: string | number | Date) {
   return format(value, "PP")
+}
+
+export function formatToDDMMYYYY(value: string | number | Date) {
+  const date = new Date(value)
+  if (isNaN(date.getTime())) return ""
+
+  const day = String(date.getDate()).padStart(2, "0")
+  const month = String(date.getMonth() + 1).padStart(2, "0")
+  const year = date.getFullYear()
+
+  return `${day}/${month}/${year}`
 }
 
 export function formatRelativeDate(value?: string | number | Date) {

@@ -52,10 +52,10 @@ export function FileUpload({ files, onFilesChange }: FileUploadProps) {
             variant="outline"
             onClick={() => fileInputRef.current?.click()}
           >
-            Choose Files
+            Escolher arquivos
           </Button>
           <p className="mt-2 text-sm text-gray-500">
-            Upload images and documents (PDF, DOC, JPG, PNG)
+            Anexar imagens e documentos (PDF, DOC, JPG, PNG)
           </p>
         </div>
         <input

@@ -125,7 +125,7 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
             size="sm"
             onClick={() => setIsPreview(!isPreview)}
           >
-            {isPreview ? "Edit" : "Preview"}
+            {isPreview ? "Editar" : "Visualização"}
           </Button>
         </div>
       </div>
@@ -140,7 +140,7 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
           id="description"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          placeholder="Enter detailed description of the warranty issue..."
+          placeholder=""
           className="min-h-[200px] border-t-0 rounded-t-none focus:ring-0 focus:border-gray-300"
         />
       )}
