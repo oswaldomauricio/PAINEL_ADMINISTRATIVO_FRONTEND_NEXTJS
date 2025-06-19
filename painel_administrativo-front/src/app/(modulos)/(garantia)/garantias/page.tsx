@@ -1,8 +1,11 @@
 "use client"
 
 import { useState } from "react"
-import Link from "next/link"
 import { Plus, Search, Wrench } from "lucide-react"
+
+import type { divergenciasType } from "../../types/types"
+
+import { divergenciasData } from "../../_data/divergenciasData"
 
 import { Button } from "@/components/ui/button"
 import { CardContent } from "@/components/ui/card"
@@ -15,10 +18,29 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import BasicTableGarantia from "@/app/components/table_garantia"
+import BasicTableDivergencia from "../../../components/table_divergencia"
+import { NewRequestModalWarranty } from "@/app/components/new-request-modal-warranty"
 
 export default function GarantiaPage() {
   const [search, setSearch] = useState("")
+  const [isNewRequestOpen, setIsNewRequestOpen] = useState(false)
+  const [tickets, setTickets] = useState(divergenciasData)
+
+  const handleNewRequest = (requestData: divergenciasType) => {
+    const newTicket = {
+      id: `DV-${String(tickets.length + 1).padStart(3, "0")}`,
+      store: requestData.store,
+      date: requestData.date,
+      openDays: requestData.days_remaining,
+      days_remaining: requestData.days_remaining,
+      supplier: requestData.supplier,
+      salesNote: requestData.salesNote,
+      status: requestData.status,
+      description: requestData.description,
+    }
+    setTickets([...tickets, newTicket])
+    setIsNewRequestOpen(false)
+  }
 
   return (
     <div className="container py-4">
@@ -30,16 +52,14 @@ export default function GarantiaPage() {
           </h1>
           <div className="flex flex-row items-start justify-between w-full">
             <p className="text-lg font-semibold py-1">
-              Relatório de solicitações de garantias
+              Relatório de solicitações de Garantias
             </p>
-            <Button variant="default" className="w-2/12 gap-4">
-              <Link
-                href="/garantias/novo"
-                className="gap-2 flex items-center flex-row"
-              >
-                <Plus className="h-4 w-4" />
-                Nova solicitação
-              </Link>
+            <Button
+              onClick={() => setIsNewRequestOpen(true)}
+              className="flex items-center gap-2 flex-row"
+            >
+              <Plus className="h-4 w-4" />
+              Nova solicitação
             </Button>
           </div>
         </div>
@@ -77,9 +97,14 @@ export default function GarantiaPage() {
           </InputGroup>
         </div>
         <div className="col-span-3 row-start-4 items-center">
-          <BasicTableGarantia search={search} />
+          <BasicTableDivergencia search={search} />
         </div>
       </div>
+      <NewRequestModalWarranty
+        isOpen={isNewRequestOpen}
+        onClose={() => setIsNewRequestOpen(false)}
+        onSubmit={handleNewRequest}
+      />
     </div>
   )
 }

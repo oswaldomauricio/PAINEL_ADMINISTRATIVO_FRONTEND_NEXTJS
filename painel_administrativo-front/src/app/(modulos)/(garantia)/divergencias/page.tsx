@@ -1,7 +1,11 @@
 "use client"
 
 import { useState } from "react"
-import { Package, Search, SendHorizontal } from "lucide-react"
+import { Package, Plus, Search } from "lucide-react"
+
+import type { divergenciasType } from "../../types/types"
+
+import { divergenciasData } from "../../_data/divergenciasData"
 
 import { Button } from "@/components/ui/button"
 import { CardContent } from "@/components/ui/card"
@@ -15,24 +19,46 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import BasicTableDivergencia from "../../../components/table_divergencia"
+import { NewRequestModalDivergence } from "@/app/components/new-request-modal-divergence"
 
 export default function DivergenciaPage() {
   const [search, setSearch] = useState("")
+  const [isNewRequestOpen, setIsNewRequestOpen] = useState(false)
+  const [tickets, setTickets] = useState(divergenciasData)
+
+  const handleNewRequest = (requestData: divergenciasType) => {
+    const newTicket = {
+      id: `DV-${String(tickets.length + 1).padStart(3, "0")}`,
+      store: requestData.store,
+      date: requestData.date,
+      openDays: requestData.days_remaining,
+      days_remaining: requestData.days_remaining,
+      supplier: requestData.supplier,
+      salesNote: requestData.salesNote,
+      status: requestData.status,
+      description: requestData.description,
+    }
+    setTickets([...tickets, newTicket])
+    setIsNewRequestOpen(false)
+  }
 
   return (
     <div className="container py-4">
       <div className="grid grid-cols-3 grid-rows-[auto_auto_auto_1fr] gap-y-2">
-        <div className="col-span-2 row-start-1 py-2">
+        <div className="col-span-3 row-start-1 py-2">
           <h1 className="text-3xl font-bold flex items-center gap-4">
             <Package className="h-8 w-8 text-red-500" />
             <span>Divergências</span>
           </h1>
-          <div className="flex flex-row items-start gap-8">
+          <div className="flex flex-row items-start justify-between w-full">
             <p className="text-lg font-semibold py-1">
               Relatório de solicitações de divergências
             </p>
-            <Button variant="default" className="w-2/8 gap-4">
-              <SendHorizontal className="h-4 w-4" />
+            <Button
+              onClick={() => setIsNewRequestOpen(true)}
+              className="flex items-center gap-2 flex-row"
+            >
+              <Plus className="h-4 w-4" />
               Nova solicitação
             </Button>
           </div>
@@ -74,6 +100,11 @@ export default function DivergenciaPage() {
           <BasicTableDivergencia search={search} />
         </div>
       </div>
+      <NewRequestModalDivergence
+        isOpen={isNewRequestOpen}
+        onClose={() => setIsNewRequestOpen(false)}
+        onSubmit={handleNewRequest}
+      />
     </div>
   )
 }
