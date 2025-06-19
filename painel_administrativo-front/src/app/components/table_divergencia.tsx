@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation"
 
-import { divergenciasData } from "../(modulos)/_data/divergenciasData"
+import type { divergenciasType } from "../(modulos)/types/types"
 
 import { Card, CardContent } from "@/components/ui/card"
 import {
@@ -16,20 +16,22 @@ import {
 
 type BasicTableProps = {
   search: string
+  data: divergenciasType[]
 }
 
-export default function BasicTableDivergencia({ search }: BasicTableProps) {
+export default function BasicTableDivergencia({
+  search,
+  data,
+}: BasicTableProps) {
   const router = useRouter()
-  const filteredData = divergenciasData.filter(
+  const filteredData = data.filter(
     (item) =>
       item.id.toLowerCase().includes(search.toLowerCase()) ||
-      item.days_remaining.toString().includes(search.toLowerCase()) ||
+      item.openDays.toString().includes(search.toLowerCase()) ||
       item.store.toLowerCase().includes(search.toLowerCase()) ||
       item.supplier.toLowerCase().includes(search.toLowerCase()) ||
       item.status.toLowerCase().includes(search.toLowerCase()) ||
-      item.description.toLowerCase().includes(search.toLowerCase()) ||
-      (item.sales_invoice &&
-        item.sales_invoice.toLowerCase().includes(search.toLowerCase()))
+      item.description.toLowerCase().includes(search.toLowerCase())
   )
 
   return (
@@ -38,13 +40,13 @@ export default function BasicTableDivergencia({ search }: BasicTableProps) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[100px]">Ticket</TableHead>
-              <TableHead className="text-left">Loja</TableHead>
-              <TableHead className="text-left">Data</TableHead>
-              <TableHead className="text-left">Dias em aberto</TableHead>
-              <TableHead className="text-left">Fornecedor</TableHead>
-              <TableHead className="text-left">Nota de venda</TableHead>
-              <TableHead className="text-left">Status</TableHead>
+              <TableHead className="text-center">Ticket</TableHead>
+              <TableHead className="text-center">Loja</TableHead>
+              <TableHead className="text-center">Data de solicitação</TableHead>
+              <TableHead className="text-center">Dias em aberto</TableHead>
+              <TableHead className="text-center">Fornecedor</TableHead>
+              <TableHead className="text-center">CNPJ</TableHead>
+              <TableHead className="text-center">Status</TableHead>
               <TableHead className="text-left">Descrição</TableHead>
             </TableRow>
           </TableHeader>
@@ -64,17 +66,21 @@ export default function BasicTableDivergencia({ search }: BasicTableProps) {
                   key={item.id}
                   onClick={() => router.push(`/divergencias/${item.id}`)}
                 >
-                  <TableCell className="font-medium">{item.id}</TableCell>
-                  <TableCell>{item.store}</TableCell>
-                  <TableCell>
-                    {item.date instanceof Date
-                      ? item.date.toLocaleDateString()
-                      : item.date}
+                  <TableCell className="font-medium text-center">
+                    {item.id}
                   </TableCell>
-                  <TableCell>{item.days_remaining}</TableCell>
-                  <TableCell>{item.supplier}</TableCell>
-                  <TableCell>{item.sales_invoice}</TableCell>
-                  <TableCell className="text-left">{item.status}</TableCell>
+                  <TableCell className="text-center">{item.store}</TableCell>
+                  <TableCell className="text-center">
+                    {item.EntryDate instanceof Date
+                      ? item.EntryDate.toLocaleDateString()
+                      : item.EntryDate}
+                  </TableCell>
+                  <TableCell className="text-center">{item.openDays}</TableCell>
+                  <TableCell className="text-center">{item.supplier}</TableCell>
+                  <TableCell className="text-center">
+                    {item.supplierDocument}
+                  </TableCell>
+                  <TableCell className="text-center">{item.status}</TableCell>
                   <TableCell>{item.description}</TableCell>
                 </TableRow>
               ))

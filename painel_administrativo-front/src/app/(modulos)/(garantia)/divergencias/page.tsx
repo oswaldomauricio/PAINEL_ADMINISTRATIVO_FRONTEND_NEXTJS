@@ -27,19 +27,25 @@ export default function DivergenciaPage() {
   const [tickets, setTickets] = useState(divergenciasData)
 
   const handleNewRequest = (requestData: divergenciasType) => {
-    const newTicket = {
-      id: `DV-${String(tickets.length + 1).padStart(3, "0")}`,
+    const newTicket: divergenciasType = {
+      id: `DV-${String(tickets.length + 1)}`,
       store: requestData.store,
-      date: requestData.date,
-      openDays: requestData.days_remaining,
-      days_remaining: requestData.days_remaining,
+      EntryDate: requestData.EntryDate,
+      openDays: Math.abs(
+        Math.floor(
+          (new Date(requestData.EntryDate).getTime() - Date.now()) /
+            (1000 * 60 * 60 * 24)
+        )
+      ),
       supplier: requestData.supplier,
-      salesNote: requestData.salesNote,
-      status: requestData.status,
+      supplierDocument: requestData.supplierDocument,
+      produtos: requestData.produtos,
+      status: "NOVO",
       description: requestData.description,
     }
     setTickets([...tickets, newTicket])
     setIsNewRequestOpen(false)
+    console.log(newTicket)
   }
 
   return (
@@ -97,7 +103,7 @@ export default function DivergenciaPage() {
           </InputGroup>
         </div>
         <div className="col-span-3 row-start-4 items-center">
-          <BasicTableDivergencia search={search} />
+          <BasicTableDivergencia search={search} data={tickets} />
         </div>
       </div>
       <NewRequestModalDivergence

@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation"
 
-import { divergenciasData } from "../(modulos)/_data/divergenciasData"
+import { garantiasData } from "../(modulos)/_data/garantiasData"
 
 import { Card, CardContent } from "@/components/ui/card"
 import {
@@ -20,16 +20,14 @@ type BasicTableProps = {
 
 export default function BasicTableGarantia({ search }: BasicTableProps) {
   const router = useRouter()
-  const filteredData = divergenciasData.filter(
+  const filteredData = garantiasData.filter(
     (item) =>
       item.id.toLowerCase().includes(search.toLowerCase()) ||
       item.days_remaining.toString().includes(search.toLowerCase()) ||
       item.store.toLowerCase().includes(search.toLowerCase()) ||
       item.supplier.toLowerCase().includes(search.toLowerCase()) ||
       item.status.toLowerCase().includes(search.toLowerCase()) ||
-      item.description.toLowerCase().includes(search.toLowerCase()) ||
-      (item.sales_invoice &&
-        item.sales_invoice.toLowerCase().includes(search.toLowerCase()))
+      item.description.toLowerCase().includes(search.toLowerCase())
   )
 
   return (
@@ -73,7 +71,7 @@ export default function BasicTableGarantia({ search }: BasicTableProps) {
                   </TableCell>
                   <TableCell>{item.days_remaining}</TableCell>
                   <TableCell>{item.supplier}</TableCell>
-                  <TableCell>{item.sales_invoice}</TableCell>
+                  <TableCell>{item.salesNote}</TableCell>
                   <TableCell className="text-left">{item.status}</TableCell>
                   <TableCell>{item.description}</TableCell>
                 </TableRow>
