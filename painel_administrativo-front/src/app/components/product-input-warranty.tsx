@@ -26,7 +26,7 @@ export function ProductInput({
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg bg-gray-50">
       <div className="space-y-2">
-        <Label htmlFor="productCode">Product Code</Label>
+        <Label htmlFor="productCode">Código do produto</Label>
         <Input
           id="productCode"
           value={product.code}
@@ -36,7 +36,7 @@ export function ProductInput({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="quantity">Quantity</Label>
+        <Label htmlFor="quantity">Quantidade</Label>
         <Input
           id="quantity"
           type="number"
@@ -47,7 +47,7 @@ export function ProductInput({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="value">Product Value</Label>
+        <Label htmlFor="value">Valor do produto</Label>
         <Input
           id="value"
           type="number"

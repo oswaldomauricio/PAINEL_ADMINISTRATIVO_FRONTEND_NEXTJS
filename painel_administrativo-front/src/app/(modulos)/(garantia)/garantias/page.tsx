@@ -3,9 +3,9 @@
 import { useState } from "react"
 import { Plus, Search, Wrench } from "lucide-react"
 
-import type { divergenciasType } from "../../types/types"
+import type { garantiasType } from "../../types/types"
 
-import { divergenciasData } from "../../_data/divergenciasData"
+import { garantiasData } from "../../_data/garantiasData"
 
 import { Button } from "@/components/ui/button"
 import { CardContent } from "@/components/ui/card"
@@ -18,20 +18,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import BasicTableDivergencia from "../../../components/table_divergencia"
+import BasicTableGarantia from "../../../components/table_garantia"
 import { NewRequestModalWarranty } from "@/app/components/new-request-modal-warranty"
 
 export default function GarantiaPage() {
   const [search, setSearch] = useState("")
   const [isNewRequestOpen, setIsNewRequestOpen] = useState(false)
-  const [tickets, setTickets] = useState(divergenciasData)
+  const [tickets, setTickets] = useState(garantiasData)
 
-  const handleNewRequest = (requestData: divergenciasType) => {
+  const handleNewRequest = (requestData: garantiasType) => {
     const newTicket = {
       id: `DV-${String(tickets.length + 1).padStart(3, "0")}`,
       store: requestData.store,
       date: requestData.date,
-      openDays: requestData.days_remaining,
       days_remaining: requestData.days_remaining,
       supplier: requestData.supplier,
       salesNote: requestData.salesNote,
@@ -97,7 +96,7 @@ export default function GarantiaPage() {
           </InputGroup>
         </div>
         <div className="col-span-3 row-start-4 items-center">
-          <BasicTableDivergencia search={search} />
+          <BasicTableGarantia search={search} />
         </div>
       </div>
       <NewRequestModalWarranty

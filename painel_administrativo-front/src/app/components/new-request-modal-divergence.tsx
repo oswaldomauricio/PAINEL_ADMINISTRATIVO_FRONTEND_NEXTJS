@@ -46,7 +46,7 @@ export function NewRequestModalDivergence({
     store: "",
     supplier: "",
     EntryDate: "",
-    supplierCnpj: "",
+    supplierDocument: "",
     description: "",
     products: [{ code: "", quantity: "", value: "", type: "", EntryNote: "" }],
     files: [] as File[],
@@ -60,7 +60,7 @@ export function NewRequestModalDivergence({
       store: "",
       supplier: "",
       EntryDate: "",
-      supplierCnpj: "",
+      supplierDocument: "",
       description: "",
       products: [
         { code: "", quantity: "", value: "", type: "", EntryNote: "" },
@@ -96,7 +96,7 @@ export function NewRequestModalDivergence({
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader className="flex flex-row items-center gap-2">
           <Package className="text-red-500" />
-          <DialogTitle>Nova solicitação de divergencia</DialogTitle>
+          <DialogTitle>Nova solicitação de divergência</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -154,14 +154,14 @@ export function NewRequestModalDivergence({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="supplierCnpj">CPF/CNPJ do cliente *</Label>
+                <Label htmlFor="supplierDocument">CPF/CNPJ do cliente *</Label>
                 <Input
-                  id="supplierCnpj"
-                  value={formData.supplierCnpj}
+                  id="supplierDocument"
+                  value={formData.supplierDocument}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      supplierCnpj: e.target.value,
+                      supplierDocument: e.target.value,
                     })
                   }
                   placeholder="CPF / CNPJ"

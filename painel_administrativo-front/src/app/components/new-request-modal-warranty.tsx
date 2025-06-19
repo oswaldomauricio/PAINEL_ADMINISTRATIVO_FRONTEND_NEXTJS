@@ -93,16 +93,16 @@ export function NewRequestModalWarranty({
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader className="flex flex-row items-center gap-2">
           <Package className="text-red-500" />
-          <DialogTitle>Nova solicitação de divergencia</DialogTitle>
+          <DialogTitle>Nova solicitação de garantia</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Basic Information */}
-          <Card className="px-4">
+          <Card className="">
             <CardHeader>
               <CardTitle className="text-lg">Informações</CardTitle>
             </CardHeader>
-            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
               <div className="space-y-4">
                 <Label htmlFor="store">Loja *</Label>
                 <Select
@@ -151,7 +151,7 @@ export function NewRequestModalWarranty({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="requestDate">Data de solicitação *</Label>
+                <Label htmlFor="requestDate">Data de venda *</Label>
                 <Input
                   id="requestDate"
                   type="date"
