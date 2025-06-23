@@ -87,12 +87,14 @@ const mockTicketData: Record<string, TicketData> = divergenciasData.reduce(
         productCode: p.productCode,
         quantity: p.quantity.toString(),
         value: p.value.toFixed(2),
-        type: p.type.toString().toLocaleUpperCase() as
-          | "FALTA"
-          | "SOBRA"
-          | "AVARIA"
-          | "OUTRO",
-        entryNote: p.entryNote,
+        type: p.type
+          ? (p.type.toString().toLocaleUpperCase() as
+              | "FALTA"
+              | "SOBRA"
+              | "AVARIA"
+              | "OUTRO")
+          : "OUTRO",
+        entryNote: p.entryNote ?? 0,
       })),
       attachments: [
         {
