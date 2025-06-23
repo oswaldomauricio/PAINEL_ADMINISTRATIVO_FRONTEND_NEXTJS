@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { toDate } from "date-fns"
 import { Package, Plus, Search } from "lucide-react"
 
 import type { divergenciasType } from "../../types/types"
@@ -30,10 +31,10 @@ export default function DivergenciaPage() {
     const newTicket: divergenciasType = {
       id: `DV-${String(tickets.length + 1)}`,
       store: requestData.store,
-      EntryDate: requestData.EntryDate,
+      requestDate: toDate(Date.now()),
       openDays: Math.abs(
         Math.floor(
-          (new Date(requestData.EntryDate).getTime() - Date.now()) /
+          (new Date(requestData.requestDate).getTime() - Date.now()) /
             (1000 * 60 * 60 * 24)
         )
       ),
