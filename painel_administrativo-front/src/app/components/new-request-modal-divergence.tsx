@@ -45,10 +45,10 @@ export function NewRequestModalDivergence({
   const [formData, setFormData] = useState({
     store: "",
     supplier: "",
-    EntryDate: "",
+    requestDate: Date.now(),
     supplierDocument: "",
     description: "",
-    products: [{ code: "", quantity: "", value: "", type: "", EntryNote: "" }],
+    products: [{ code: "", quantity: "", type: "", EntryNote: "" }],
     files: [] as File[],
   })
 
@@ -59,15 +59,13 @@ export function NewRequestModalDivergence({
     setFormData({
       store: "",
       supplier: "",
-      EntryDate: "",
+      requestDate: Date.now(),
       supplierDocument: "",
       description: "",
-      products: [
-        { code: "", quantity: "", value: "", type: "", EntryNote: "" },
-      ],
+      products: [{ code: "", quantity: "", type: "", EntryNote: "" }],
       files: [],
     })
-    console.log(formatToDDMMYYYY(formData.EntryDate))
+    console.log(formatToDDMMYYYY(formData.requestDate))
   }
 
   const addProduct = () => {
@@ -75,7 +73,7 @@ export function NewRequestModalDivergence({
       ...formData,
       products: [
         ...formData.products,
-        { code: "", quantity: "", value: "", type: "", EntryNote: "" },
+        { code: "", quantity: "", type: "", EntryNote: "" },
       ],
     })
   }
@@ -128,19 +126,6 @@ export function NewRequestModalDivergence({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="EntryDate">Data de entrada *</Label>
-                <Input
-                  id="EntryDate"
-                  type="date"
-                  value={formData.EntryDate}
-                  onChange={(e) =>
-                    setFormData({ ...formData, EntryDate: e.target.value })
-                  }
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
                 <Label htmlFor="supplier">Fornecedor *</Label>
                 <Input
                   id="supplier"
@@ -154,7 +139,7 @@ export function NewRequestModalDivergence({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="supplierDocument">CPF/CNPJ do cliente *</Label>
+                <Label htmlFor="supplierDocument">CNPJ do fornecedor *</Label>
                 <Input
                   id="supplierDocument"
                   value={formData.supplierDocument}

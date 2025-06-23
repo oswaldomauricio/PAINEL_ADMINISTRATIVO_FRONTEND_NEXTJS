@@ -71,9 +71,9 @@ export default function BasicTableDivergencia({
                   </TableCell>
                   <TableCell className="text-center">{item.store}</TableCell>
                   <TableCell className="text-center">
-                    {item.EntryDate instanceof Date
-                      ? item.EntryDate.toLocaleDateString()
-                      : item.EntryDate}
+                    {item.requestDate instanceof Date
+                      ? item.requestDate.toLocaleDateString()
+                      : item.requestDate}
                   </TableCell>
                   <TableCell className="text-center">{item.openDays}</TableCell>
                   <TableCell className="text-center">{item.supplier}</TableCell>
@@ -81,7 +81,7 @@ export default function BasicTableDivergencia({
                     {item.supplierDocument}
                   </TableCell>
                   <TableCell className="text-center">{item.status}</TableCell>
-                  <TableCell>{item.description}</TableCell>
+                  <TableCell>{item.description.slice(0, 50)}...</TableCell>
                 </TableRow>
               ))
             )}

@@ -5,10 +5,10 @@ export const divergenciasData: divergenciasType[] = [
     id: "DV-1",
     store: "101",
     supplier: "Distribuidora ABC",
-    EntryDate: new Date("2025-06-10"),
+    requestDate: new Date("2025-06-10"),
     supplierDocument: "12.345.678/0001-90",
     openDays: 5,
-    status: "PENDENTE",
+    status: "NOVO",
     produtos: [
       {
         productCode: "A123",
@@ -17,17 +17,25 @@ export const divergenciasData: divergenciasType[] = [
         type: "FALTA",
         entryNote: 1001,
       },
+      {
+        productCode: "A124",
+        quantity: 4,
+        value: 154.5,
+        type: "SOBRA",
+        entryNote: 1001,
+      },
     ],
-    description: "Produto faltando na remessa.",
+    description:
+      "**Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.**",
   },
   {
     id: "DV-2",
     store: "101",
     supplier: "Fornecedor XYZ",
-    EntryDate: new Date("2025-06-12"),
+    requestDate: new Date("2025-06-12"),
     supplierDocument: "98.765.432/0001-10",
     openDays: 3,
-    status: "APROVADO",
+    status: "RESOLVIDO",
     produtos: [
       {
         productCode: "B456",
@@ -37,16 +45,17 @@ export const divergenciasData: divergenciasType[] = [
         entryNote: 1002,
       },
     ],
-    description: "Produto chegou danificado.",
+    description:
+      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
   },
   {
     id: "DV-3",
     store: "102",
     supplier: "Importadora BR",
-    EntryDate: new Date("2025-10-06"),
+    requestDate: new Date("2025-10-06"),
     supplierDocument: "11.222.333/0001-44",
     openDays: 10,
-    status: "PENDENTE",
+    status: "NOVO",
     produtos: [
       {
         productCode: "C789",
@@ -56,13 +65,14 @@ export const divergenciasData: divergenciasType[] = [
         entryNote: 1003,
       },
     ],
-    description: "Enviado mais produtos do que solicitado.",
+    description:
+      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
   },
   {
     id: "DV-4",
     store: "103",
     supplier: "Tech Fornecedora",
-    EntryDate: new Date("2025-06-08"),
+    requestDate: new Date("2025-06-08"),
     supplierDocument: "00.111.222/0001-33",
     openDays: 7,
     status: "PENDENTE",
@@ -75,13 +85,14 @@ export const divergenciasData: divergenciasType[] = [
         entryNote: 1004,
       },
     ],
-    description: "Divergência de documentação.",
+    description:
+      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
   },
   {
     id: "DV-5",
     store: "104",
     supplier: "Log Distribuição",
-    EntryDate: new Date("2025-06-03"),
+    requestDate: new Date("2025-06-03"),
     supplierDocument: "77.888.999/0001-55",
     openDays: 12,
     status: "PENDENTE",
@@ -94,16 +105,17 @@ export const divergenciasData: divergenciasType[] = [
         entryNote: 1005,
       },
     ],
-    description: "Itens não entregues.",
+    description:
+      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
   },
   {
     id: "DV-6",
     store: "101",
     supplier: "Distribuidora ABC",
-    EntryDate: new Date("2025-06-11"),
+    requestDate: new Date("2025-06-11"),
     supplierDocument: "12.345.678/0001-90",
     openDays: 4,
-    status: "APROVADO",
+    status: "RESOLVIDO",
     produtos: [
       {
         productCode: "F987",
@@ -113,16 +125,17 @@ export const divergenciasData: divergenciasType[] = [
         entryNote: 1006,
       },
     ],
-    description: "Caixa amassada e produto com defeito.",
+    description:
+      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
   },
   {
     id: "DV-7",
     store: "101",
     supplier: "Fornecedor XYZ",
-    EntryDate: new Date("2025-06-11"),
+    requestDate: new Date("2025-06-11"),
     supplierDocument: "98.765.432/0001-10",
     openDays: 14,
-    status: "PENDENTE",
+    status: "NOVO",
     produtos: [
       {
         productCode: "G432",
@@ -132,13 +145,14 @@ export const divergenciasData: divergenciasType[] = [
         entryNote: 1007,
       },
     ],
-    description: "Faltou nota fiscal anexa.",
+    description:
+      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
   },
   {
     id: "DV-8",
     store: "102",
     supplier: "Importadora BR",
-    EntryDate: new Date("2025-06-11"),
+    requestDate: new Date("2025-06-11"),
     supplierDocument: "11.222.333/0001-44",
     openDays: 1,
     status: "PENDENTE",
@@ -151,13 +165,14 @@ export const divergenciasData: divergenciasType[] = [
         entryNote: 1008,
       },
     ],
-    description: "Quantidade menor entregue.",
+    description:
+      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
   },
   {
     id: "DV-9",
     store: "103",
     supplier: "Tech Fornecedora",
-    EntryDate: new Date("2025-06-11"),
+    requestDate: new Date("2025-06-11"),
     supplierDocument: "00.111.222/0001-33",
     openDays: 2,
     status: "PENDENTE",
@@ -170,16 +185,17 @@ export const divergenciasData: divergenciasType[] = [
         entryNote: 1009,
       },
     ],
-    description: "Remessa maior do que o pedido.",
+    description:
+      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
   },
   {
     id: "DV-10",
     store: "104",
     supplier: "Log Distribuição",
-    EntryDate: new Date("2025-06-11"),
+    requestDate: new Date("2025-06-11"),
     supplierDocument: "77.888.999/0001-55",
     openDays: 13,
-    status: "APROVADO",
+    status: "RESOLVIDO",
     produtos: [
       {
         productCode: "J333",
@@ -189,6 +205,7 @@ export const divergenciasData: divergenciasType[] = [
         entryNote: 1010,
       },
     ],
-    description: "Produto com embalagem rasgada.",
+    description:
+      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
   },
 ]

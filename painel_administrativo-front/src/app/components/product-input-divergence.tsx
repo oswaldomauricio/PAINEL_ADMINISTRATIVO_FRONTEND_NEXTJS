@@ -10,7 +10,6 @@ interface ProductInputProps {
   product: {
     code: string
     quantity: string
-    value: string
     type: string
     EntryNote: string
   }
@@ -46,19 +45,6 @@ export function ProductInput({
           value={product.quantity}
           onChange={(e) => onUpdate("quantity", e.target.value)}
           placeholder="Quantidade..."
-          required
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="value">Valor do produto</Label>
-        <Input
-          id="value"
-          type="number"
-          step="0.01"
-          value={product.value}
-          onChange={(e) => onUpdate("value", e.target.value)}
-          placeholder="Digite o Valor"
           required
         />
       </div>
