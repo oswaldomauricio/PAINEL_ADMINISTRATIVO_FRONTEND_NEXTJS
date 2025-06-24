@@ -1,4 +1,4 @@
-export interface Product {
+export interface ProductDivergence {
   productCode: string
   quantity: number
   value: number
@@ -14,8 +14,14 @@ export interface divergenciasType {
   supplierDocument: string //cnpj do fornecedor
   openDays: number // dias restantes
   status: "NOVO" | "PENDENTE" | "RESOLVIDO" | "CANCELADO" // status
-  produtos: Product[]
+  produtos: ProductDivergence[]
   description: string // descrição
+}
+
+export interface ProductWarranty {
+  productCode: string
+  quantity: number
+  value: number
 }
 
 export interface garantiasType {
@@ -25,7 +31,9 @@ export interface garantiasType {
   openDays: number // dias restantes
   supplier: string // fornecedor
   salesNote: string // nota fiscal de venda
+  customerName: string
+  customerDocument: string
   status: "NOVO" | "PENDENTE" | "RESOLVIDO" | "CANCELADO" // status
-  produtos: Product[]
+  produtos: ProductWarranty[]
   description: string // descrição
 }

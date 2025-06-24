@@ -1,13 +1,24 @@
 import type { garantiasType } from "../types/types"
 
+const calculateOpenDays = (futureDate: Date): number => {
+  const today = new Date("2025-06-23T00:00:00") // Data atual fixada para consistência
+  const requestDate = new Date(futureDate)
+  requestDate.setHours(0, 0, 0, 0) // Zera a hora para comparar apenas os dias
+  const diffTime = requestDate.getTime() - today.getTime()
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+  return diffDays > 0 ? diffDays : 0
+}
+
 export const garantiasData: garantiasType[] = [
   {
     id: "GA-1",
     store: "101",
     requestDate: new Date("2025-10-01"),
-    openDays: new Date("2025-10-01").getDate() - new Date().getDate(),
+    openDays: calculateOpenDays(new Date("2025-10-01")),
     supplier: "Fornecedor A",
     salesNote: "NFV001",
+    customerName: "João da Silva",
+    customerDocument: "111.222.333-44",
     status: "NOVO",
     produtos: [
       {
@@ -27,9 +38,11 @@ export const garantiasData: garantiasType[] = [
     id: "GA-2",
     store: "102",
     requestDate: new Date("2025-10-02"),
-    openDays: new Date("2025-10-02").getDate() - new Date().getDate(),
+    openDays: calculateOpenDays(new Date("2025-10-02")),
     supplier: "Fornecedor B",
     salesNote: "NFV002",
+    customerName: "Maria Oliveira",
+    customerDocument: "222.333.444-55",
     status: "RESOLVIDO",
     produtos: [
       {
@@ -44,9 +57,11 @@ export const garantiasData: garantiasType[] = [
     id: "GA-3",
     store: "103",
     requestDate: new Date("2025-10-03"),
-    openDays: new Date("2025-10-03").getDate() - new Date().getDate(),
+    openDays: calculateOpenDays(new Date("2025-10-03")),
     supplier: "Fornecedor C",
     salesNote: "NFV003",
+    customerName: "Pedro Souza",
+    customerDocument: "333.444.555-66",
     status: "CANCELADO",
     produtos: [
       {
@@ -61,9 +76,11 @@ export const garantiasData: garantiasType[] = [
     id: "GA-4",
     store: "101",
     requestDate: new Date("2025-10-04"),
-    openDays: new Date("2025-10-04").getDate() - new Date().getDate(),
+    openDays: calculateOpenDays(new Date("2025-10-04")),
     supplier: "Fornecedor D",
     salesNote: "NFV004",
+    customerName: "Ana Costa",
+    customerDocument: "444.555.666-77",
     status: "PENDENTE",
     produtos: [
       {
@@ -78,9 +95,11 @@ export const garantiasData: garantiasType[] = [
     id: "GA-5",
     store: "102",
     requestDate: new Date("2025-10-05"),
-    openDays: new Date("2025-10-05").getDate() - new Date().getDate(),
+    openDays: calculateOpenDays(new Date("2025-10-05")),
     supplier: "Fornecedor E",
     salesNote: "NFV005",
+    customerName: "Carlos Pereira",
+    customerDocument: "555.666.777-88",
     status: "RESOLVIDO",
     produtos: [
       {
@@ -95,9 +114,11 @@ export const garantiasData: garantiasType[] = [
     id: "GA-6",
     store: "103",
     requestDate: new Date("2025-10-06"),
-    openDays: new Date("2025-10-06").getDate() - new Date().getDate(),
+    openDays: calculateOpenDays(new Date("2025-10-06")),
     supplier: "Fornecedor F",
     salesNote: "NFV006",
+    customerName: "Juliana Almeida",
+    customerDocument: "666.777.888-99",
     status: "CANCELADO",
     produtos: [
       {
@@ -112,9 +133,11 @@ export const garantiasData: garantiasType[] = [
     id: "GA-7",
     store: "104",
     requestDate: new Date("2025-10-07"),
-    openDays: new Date("2025-10-07").getDate() - new Date().getDate(),
+    openDays: calculateOpenDays(new Date("2025-10-07")),
     supplier: "Fornecedor G",
     salesNote: "NFV007",
+    customerName: "Ricardo Fernandes",
+    customerDocument: "777.888.999-00",
     status: "NOVO",
     produtos: [
       {
@@ -134,9 +157,11 @@ export const garantiasData: garantiasType[] = [
     id: "GA-8",
     store: "101",
     requestDate: new Date("2025-10-08"),
-    openDays: new Date("2025-10-08").getDate() - new Date().getDate(),
+    openDays: calculateOpenDays(new Date("2025-10-08")),
     supplier: "Fornecedor H",
     salesNote: "NFV008",
+    customerName: "Beatriz Lima",
+    customerDocument: "888.999.000-11",
     status: "PENDENTE",
     produtos: [
       {
@@ -151,9 +176,11 @@ export const garantiasData: garantiasType[] = [
     id: "GA-9",
     store: "105",
     requestDate: new Date("2025-10-09"),
-    openDays: new Date("2025-10-09").getDate() - new Date().getDate(),
+    openDays: calculateOpenDays(new Date("2025-10-09")),
     supplier: "Fornecedor I",
     salesNote: "NFV009",
+    customerName: "Fábio Azevedo",
+    customerDocument: "999.000.111-22",
     status: "RESOLVIDO",
     produtos: [
       {
@@ -168,9 +195,11 @@ export const garantiasData: garantiasType[] = [
     id: "GA-10",
     store: "102",
     requestDate: new Date("2025-10-10"),
-    openDays: new Date("2025-10-10").getDate() - new Date().getDate(),
+    openDays: calculateOpenDays(new Date("2025-10-10")),
     supplier: "Fornecedor J",
     salesNote: "NFV010",
+    customerName: "Mariana Barros",
+    customerDocument: "000.111.222-33",
     status: "NOVO",
     produtos: [
       {
@@ -185,9 +214,11 @@ export const garantiasData: garantiasType[] = [
     id: "GA-11",
     store: "103",
     requestDate: new Date("2025-10-11"),
-    openDays: new Date("2025-10-11").getDate() - new Date().getDate(),
+    openDays: calculateOpenDays(new Date("2025-10-11")),
     supplier: "Fornecedor A",
     salesNote: "NFV011",
+    customerName: "João da Silva",
+    customerDocument: "111.222.333-44",
     status: "PENDENTE",
     produtos: [
       {
@@ -202,9 +233,11 @@ export const garantiasData: garantiasType[] = [
     id: "GA-12",
     store: "104",
     requestDate: new Date("2025-10-12"),
-    openDays: new Date("2025-10-12").getDate() - new Date().getDate(),
+    openDays: calculateOpenDays(new Date("2025-10-12")),
     supplier: "Fornecedor K",
     salesNote: "NFV012",
+    customerName: "Lucas Martins",
+    customerDocument: "123.456.789-01",
     status: "CANCELADO",
     produtos: [
       {
@@ -219,9 +252,11 @@ export const garantiasData: garantiasType[] = [
     id: "GA-13",
     store: "101",
     requestDate: new Date("2025-10-13"),
-    openDays: new Date("2025-10-13").getDate() - new Date().getDate(),
+    openDays: calculateOpenDays(new Date("2025-10-13")),
     supplier: "Fornecedor L",
     salesNote: "NFV013",
+    customerName: "Camila Ribeiro",
+    customerDocument: "234.567.890-12",
     status: "RESOLVIDO",
     produtos: [
       {
@@ -241,9 +276,11 @@ export const garantiasData: garantiasType[] = [
     id: "GA-14",
     store: "105",
     requestDate: new Date("2025-10-14"),
-    openDays: new Date("2025-10-14").getDate() - new Date().getDate(),
+    openDays: calculateOpenDays(new Date("2025-10-14")),
     supplier: "Fornecedor M",
     salesNote: "NFV014",
+    customerName: "Amanda Gomes",
+    customerDocument: "345.678.901-23",
     status: "NOVO",
     produtos: [
       {
@@ -258,9 +295,11 @@ export const garantiasData: garantiasType[] = [
     id: "GA-15",
     store: "102",
     requestDate: new Date("2025-10-15"),
-    openDays: new Date("2025-10-15").getDate() - new Date().getDate(),
+    openDays: calculateOpenDays(new Date("2025-10-15")),
     supplier: "Fornecedor B",
     salesNote: "NFV015",
+    customerName: "Maria Oliveira",
+    customerDocument: "222.333.444-55",
     status: "PENDENTE",
     produtos: [
       {
