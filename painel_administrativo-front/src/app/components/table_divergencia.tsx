@@ -4,6 +4,9 @@ import { useRouter } from "next/navigation"
 
 import type { divergenciasType } from "../(modulos)/types/types"
 
+import { getStatusColor } from "@/lib/utils"
+
+import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import {
   Table,
@@ -75,12 +78,29 @@ export default function BasicTableDivergencia({
                       ? item.requestDate.toLocaleDateString()
                       : item.requestDate}
                   </TableCell>
-                  <TableCell className="text-center">{item.openDays}</TableCell>
+                  <TableCell className="text-center">
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        item.openDays > 10
+                          ? "bg-red-100 text-red-800"
+                          : "bg-blue-100 text-blue-800"
+                      }`}
+                    >
+                      {item.openDays} days
+                    </span>
+                  </TableCell>
                   <TableCell className="text-center">{item.supplier}</TableCell>
                   <TableCell className="text-center">
                     {item.supplierDocument}
                   </TableCell>
-                  <TableCell className="text-center">{item.status}</TableCell>
+                  <TableCell
+                    className={(getStatusColor(item.status), "text-center")}
+                  >
+                    <Badge className={getStatusColor(item.status)}>
+                      {item.status.charAt(0).toUpperCase() +
+                        item.status.slice(1).toLowerCase()}
+                    </Badge>
+                  </TableCell>
                   <TableCell>{item.description.slice(0, 50)}...</TableCell>
                 </TableRow>
               ))

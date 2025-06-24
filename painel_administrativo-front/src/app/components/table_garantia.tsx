@@ -4,6 +4,9 @@ import { useRouter } from "next/navigation"
 
 import { garantiasData } from "../(modulos)/_data/garantiasData"
 
+import { getStatusColor } from "@/lib/utils"
+
+import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import {
   Table,
@@ -23,7 +26,7 @@ export default function BasicTableGarantia({ search }: BasicTableProps) {
   const filteredData = garantiasData.filter(
     (item) =>
       item.id.toLowerCase().includes(search.toLowerCase()) ||
-      item.days_remaining.toString().includes(search.toLowerCase()) ||
+      item.openDays.toString().includes(search.toLowerCase()) ||
       item.store.toLowerCase().includes(search.toLowerCase()) ||
       item.supplier.toLowerCase().includes(search.toLowerCase()) ||
       item.status.toLowerCase().includes(search.toLowerCase()) ||
@@ -37,12 +40,12 @@ export default function BasicTableGarantia({ search }: BasicTableProps) {
           <TableHeader>
             <TableRow>
               <TableHead className="w-[100px]">Ticket</TableHead>
-              <TableHead className="text-left">Loja</TableHead>
-              <TableHead className="text-left">Data</TableHead>
-              <TableHead className="text-left">Dias em aberto</TableHead>
-              <TableHead className="text-left">Fornecedor</TableHead>
-              <TableHead className="text-left">Nota de venda</TableHead>
-              <TableHead className="text-left">Status</TableHead>
+              <TableHead className="text-center">Loja</TableHead>
+              <TableHead className="text-center">Data de solicitação</TableHead>
+              <TableHead className="text-center">Dias em aberto</TableHead>
+              <TableHead className="text-center">Fornecedor</TableHead>
+              <TableHead className="text-center">Nota de venda</TableHead>
+              <TableHead className="text-center">Status</TableHead>
               <TableHead className="text-left">Descrição</TableHead>
             </TableRow>
           </TableHeader>
@@ -62,18 +65,39 @@ export default function BasicTableGarantia({ search }: BasicTableProps) {
                   key={item.id}
                   onClick={() => router.push(`/garantias/${item.id}`)}
                 >
-                  <TableCell className="font-medium">{item.id}</TableCell>
-                  <TableCell>{item.store}</TableCell>
-                  <TableCell>
-                    {item.date instanceof Date
-                      ? item.date.toLocaleDateString()
-                      : item.date}
+                  <TableCell className="font-medium text-center">
+                    {item.id}
                   </TableCell>
-                  <TableCell>{item.days_remaining}</TableCell>
-                  <TableCell>{item.supplier}</TableCell>
-                  <TableCell>{item.salesNote}</TableCell>
-                  <TableCell className="text-left">{item.status}</TableCell>
-                  <TableCell>{item.description}</TableCell>
+                  <TableCell className="text-center">{item.store}</TableCell>
+                  <TableCell className="text-center">
+                    {item.requestDate instanceof Date
+                      ? item.requestDate.toLocaleDateString()
+                      : item.requestDate}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        item.openDays > 10
+                          ? "bg-red-100 text-red-800"
+                          : "bg-blue-100 text-blue-800"
+                      }`}
+                    >
+                      {item.openDays} days
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-center">{item.supplier}</TableCell>
+                  <TableCell className="text-center">
+                    {item.salesNote}
+                  </TableCell>
+                  <TableCell
+                    className={(getStatusColor(item.status), "text-center")}
+                  >
+                    <Badge className={getStatusColor(item.status)}>
+                      {item.status.charAt(0).toUpperCase() +
+                        item.status.slice(1).toLowerCase()}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>{item.description.slice(0, 50)}...</TableCell>
                 </TableRow>
               ))
             )}
