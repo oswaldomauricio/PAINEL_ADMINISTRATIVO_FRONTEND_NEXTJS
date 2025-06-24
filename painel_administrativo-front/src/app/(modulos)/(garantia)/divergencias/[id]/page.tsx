@@ -185,6 +185,14 @@ export default function TicketPage({
     }
   }
 
+  const handleFilesAdd = (files: File[]) => {
+    console.log(
+      "New files added:",
+      files.map((f) => f.name)
+    )
+    // In real app, this would upload files to server
+  }
+
   const statuses = ["NOVO", "PENDENTE", "RESOLVIDO", "CANCELADO"]
 
   return (
@@ -276,29 +284,6 @@ export default function TicketPage({
                   </div>
                 </CardContent>
               </Card>
-
-              {/* Customer Information
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <User className="h-5 w-5" />
-                    Customer Information
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm text-gray-500">Customer Name</p>
-                      <p className="font-medium">{ticket.customerName}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">CPF/CNPJ</p>
-                      <p className="font-medium">{ticket.customerDocument}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card> */}
-
               {/* Products */}
               <Card>
                 <CardHeader>
@@ -332,14 +317,17 @@ export default function TicketPage({
                   </div>
                 </CardContent>
               </Card>
-
               {/* Conversation History */}
               <ConversationHistory
                 ticketId={ticket.id}
                 userRole={currentUserRole}
               />
               {/* File Downloads */}
-              <FileDownload attachments={ticket.attachments || []} />
+              <FileDownload
+                attachments={ticket.attachments || []}
+                onFilesAdd={handleFilesAdd}
+                // canUpload={currentUserRole === "ADMIN_GUARANTEE"}
+              />
             </div>
 
             {/* Right Column - Status Update */}
