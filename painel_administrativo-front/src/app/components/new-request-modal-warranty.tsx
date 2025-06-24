@@ -44,7 +44,7 @@ export function NewRequestModalWarranty({
     store: "",
     supplier: "",
     salesNote: "",
-    requestDate: "",
+    requestDate: Date.now(),
     customerName: "",
     customerDocument: "",
     description: "",
@@ -60,14 +60,14 @@ export function NewRequestModalWarranty({
       store: "",
       supplier: "",
       salesNote: "",
-      requestDate: "",
+      requestDate: Date.now(),
       customerName: "",
       customerDocument: "",
       description: "",
       products: [{ code: "", quantity: "", value: "" }],
       files: [],
     })
-    console.log(formData)
+    console.log(formData, "teste")
   }
 
   const addProduct = () => {
@@ -146,19 +146,6 @@ export function NewRequestModalWarranty({
                     setFormData({ ...formData, salesNote: e.target.value })
                   }
                   placeholder="Nota"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="requestDate">Data de venda *</Label>
-                <Input
-                  id="requestDate"
-                  type="date"
-                  value={formData.requestDate}
-                  onChange={(e) =>
-                    setFormData({ ...formData, requestDate: e.target.value })
-                  }
                   required
                 />
               </div>

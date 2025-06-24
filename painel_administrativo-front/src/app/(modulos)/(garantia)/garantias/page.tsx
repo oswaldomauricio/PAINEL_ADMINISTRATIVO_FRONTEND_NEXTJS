@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { toDate } from "date-fns"
 import { Plus, Search, Wrench } from "lucide-react"
 
 import type { garantiasType } from "../../types/types"
@@ -30,15 +31,28 @@ export default function GarantiaPage() {
     const newTicket = {
       id: `DV-${String(tickets.length + 1).padStart(3, "0")}`,
       store: requestData.store,
-      date: requestData.date,
-      days_remaining: requestData.days_remaining,
+      requestDate: toDate(Date.now()),
+      openDays: Math.abs(
+        Math.floor(
+          (new Date(requestData.requestDate).getTime() - Date.now()) /
+            (1000 * 60 * 60 * 24)
+        )
+      ),
       supplier: requestData.supplier,
       salesNote: requestData.salesNote,
-      status: requestData.status,
       description: requestData.description,
+      produtos: (requestData.produtos ?? []).map((item) => ({
+        productCode: item.productCode,
+        quantity: item.quantity,
+        value: item.value,
+      })),
+      customerName: requestData.customerName,
+      customerDocument: requestData.customerDocument,
+      status: "NOVO" as const,
     }
     setTickets([...tickets, newTicket])
     setIsNewRequestOpen(false)
+    console.log(newTicket, "NEW TICKET")
   }
 
   return (

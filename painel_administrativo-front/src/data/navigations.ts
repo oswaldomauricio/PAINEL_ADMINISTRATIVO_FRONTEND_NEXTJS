@@ -9,16 +9,16 @@ export const navigationsData: NavigationType[] = [
         href: "/",
         iconName: "Package",
       },
-      {
-        title: "Garantia",
-        href: "/garantias",
-        iconName: "Package",
-      },
-      {
-        title: "divergências",
-        href: "/divergencias",
-        iconName: "Package",
-      },
+      // {
+      //   title: "Garantia",
+      //   href: "/garantias",
+      //   iconName: "Package",
+      // },
+      // {
+      //   title: "divergências",
+      //   href: "/divergencias",
+      //   iconName: "Package",
+      // },
     ],
   },
 ]
