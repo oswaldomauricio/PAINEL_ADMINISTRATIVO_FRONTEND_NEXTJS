@@ -15,7 +15,7 @@ import {
   // User,
 } from "lucide-react"
 
-import { garantiasData } from "@/app/(modulos)/_data/garantiasData"
+import { garantiasData } from "@/app/dashboard/_data/garantiasData"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {

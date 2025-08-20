@@ -5,8 +5,8 @@ export const navigationsData: NavigationType[] = [
     title: "Painel",
     items: [
       {
-        title: "Garantias",
-        href: "/",
+        title: "Dashboard",
+        href: "/dashboard",
         iconName: "Package",
       },
       // {

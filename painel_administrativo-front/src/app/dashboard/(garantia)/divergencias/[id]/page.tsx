@@ -14,7 +14,7 @@ import {
   // User,
 } from "lucide-react"
 
-import { divergenciasData } from "@/app/(modulos)/_data/divergenciasData"
+import { divergenciasData } from "@/app/dashboard/_data/divergenciasData"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {

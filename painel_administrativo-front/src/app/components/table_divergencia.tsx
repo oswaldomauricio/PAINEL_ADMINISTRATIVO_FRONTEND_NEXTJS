@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation"
 
-import type { divergenciasType } from "../(modulos)/types/types"
+import type { divergenciasType } from "../dashboard/types/types"
 
 import { getStatusColor } from "@/lib/utils"
 

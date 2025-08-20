@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation"
 
-import { garantiasData } from "../(modulos)/_data/garantiasData"
+import { garantiasData } from "../dashboard/_data/garantiasData"
 
 import { getStatusColor } from "@/lib/utils"
 
