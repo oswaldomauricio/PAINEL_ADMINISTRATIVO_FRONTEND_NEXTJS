@@ -5,6 +5,7 @@ import { Package, Plus } from "lucide-react"
 
 import type React from "react"
 
+import { useStore } from "@/contexts/lojaContext"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -15,16 +16,10 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { RichTextEditor } from "@/app/components//rich-text-editor"
 import { FileUpload } from "@/app/components/file-upload"
 import { ProductInput } from "@/app/components/product-input-warranty"
+import SelectLojas from "./ui/select-lojas"
 
 interface NewRequestModalProps {
   isOpen: boolean
@@ -32,8 +27,6 @@ interface NewRequestModalProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onSubmit: (data: any) => void
 }
-
-const stores = ["101", "102", "103", "104"]
 
 export function NewRequestModalWarranty({
   isOpen,
@@ -51,6 +44,10 @@ export function NewRequestModalWarranty({
     products: [{ code: "", quantity: "", value: "" }],
     files: [] as File[],
   })
+
+  const { store } = useStore()
+
+  console.log(store + "loja no cmp")
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -103,26 +100,7 @@ export function NewRequestModalWarranty({
               <CardTitle className="text-lg">Informações</CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
-              <div className="space-y-4">
-                <Label htmlFor="store">Loja *</Label>
-                <Select
-                  value={formData.store}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, store: value })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecionar a loja" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {stores.map((store) => (
-                      <SelectItem key={store} value={store}>
-                        {store}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              <SelectLojas />
 
               <div className="space-y-2">
                 <Label htmlFor="supplier">Fornecedor *</Label>

@@ -20,7 +20,7 @@ export function BottomBarHeader() {
           width={120}
           // className="dark:invert"
         />
-        <span>Shadboard</span>
+        <span>Norte auto peças</span>
       </Link>
       <div className="flex gap-2">
         <FullscreenToggle />

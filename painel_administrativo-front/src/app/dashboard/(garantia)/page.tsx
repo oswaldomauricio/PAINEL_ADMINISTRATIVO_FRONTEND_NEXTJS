@@ -1,25 +1,11 @@
 "use client"
 
-import { useEffect } from "react"
-import { redirect, useRouter } from "next/navigation"
-import { useSession } from "next-auth/react"
+import { redirect } from "next/navigation"
 import { Package, Wrench } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 
 export default function HomePage() {
-  const { data: session, status } = useSession()
-  const router = useRouter()
-
-  useEffect(() => {
-    if (status === "loading") return
-
-    if (!session) {
-      router.push("/")
-      return
-    }
-  }, [session, status, router])
-
   return (
     <div className="container">
       <div className="p-4 flex flex-row justify-start gap-4">

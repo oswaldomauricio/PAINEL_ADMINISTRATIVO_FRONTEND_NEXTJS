@@ -1,5 +1,7 @@
-import Link from "next/link"
-import { LogOut, User, UserCog } from "lucide-react"
+// import Link from "next/link"
+import { useEffect } from "react"
+import { signOut, useSession } from "next-auth/react"
+import { LogOut } from "lucide-react"
 
 import { userData } from "@/data/user"
 
@@ -10,14 +12,20 @@ import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
+  // DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
+  // DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
 export function UserDropdown() {
+  const { data: session, status } = useSession()
+
+  useEffect(() => {
+    if (status === "loading") return
+  }, [status])
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -30,7 +38,7 @@ export function UserDropdown() {
           <Avatar className="size-9">
             <AvatarImage src={userData?.avatar} alt="" />
             <AvatarFallback className="bg-transparent">
-              {userData?.name && getInitials(userData.name)}
+              {session?.user.name && getInitials(session?.user.name)}
             </AvatarFallback>
           </Avatar>
         </Button>
@@ -40,17 +48,19 @@ export function UserDropdown() {
           <Avatar>
             <AvatarImage src={userData?.avatar} alt="Avatar" />
             <AvatarFallback className="bg-transparent">
-              {userData?.name && getInitials(userData.name)}
+              {session?.user.name && getInitials(session?.user.name)}
             </AvatarFallback>
           </Avatar>
           <div className="flex flex-col overflow-hidden">
-            <p className="text-sm font-medium truncate">John Doe</p>
-            <p className="text-xs text-muted-foreground font-semibold truncate">
-              {userData?.email}
+            <p className="text-sm font-medium truncate">
+              {session?.user.name?.toUpperCase()}
+            </p>
+            <p className="text-xs text-muted-foreground font-semibold truncate mr-12">
+              {`${session?.user.role}`}
             </p>
           </div>
         </DropdownMenuLabel>
-        <DropdownMenuSeparator />
+        {/* <DropdownMenuSeparator />
         <DropdownMenuGroup className="max-w-48">
           <DropdownMenuItem asChild>
             <Link href="/">
@@ -65,10 +75,10 @@ export function UserDropdown() {
             </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuSeparator /> */}
+        <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/" })}>
           <LogOut className="me-2 size-4" />
-          Sign Out
+          Sair
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
