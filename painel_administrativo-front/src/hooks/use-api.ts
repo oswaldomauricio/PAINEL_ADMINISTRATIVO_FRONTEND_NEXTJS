@@ -1,6 +1,11 @@
 import { useCallback } from "react"
 import { useSession } from "next-auth/react"
 
+export interface errors {
+  message: string
+  name: string
+}
+
 export function useApi() {
   const { data: session } = useSession()
 
@@ -17,7 +22,6 @@ export function useApi() {
         const response = await fetch(url, {
           ...options,
           headers: {
-            // "Content-Type": "application/json",
             Authorization: `Bearer ${session.user.apiToken}`,
             ...options.headers,
           },
@@ -34,20 +38,21 @@ export function useApi() {
         }
 
         return response.json()
-      } catch (err: any) {
-        // Erros específicos
-        if (err.name === "TypeError" && err.message === "Failed to fetch") {
-          console.error("❌ Falha ao conectar à API:", url)
-          console.error(
-            "Possíveis causas:\n" +
-              "- Backend está offline ou porta errada\n" +
-              "- Mixed content (frontend HTTPS x backend HTTP)\n" +
-              "- Host localhost inacessível (SSR ou Docker)\n"
-          )
-        } else {
-          console.error("❌ Erro inesperado:", err)
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          if (err.name === "TypeError" && err.message === "Failed to fetch") {
+            console.error("❌ Falha ao conectar à API:", url)
+            console.error(
+              "Possíveis causas:\n" +
+                "- Backend está offline ou porta errada\n" +
+                "- Mixed content (frontend HTTPS x backend HTTP)\n" +
+                "- Host localhost inacessível (SSR ou Docker)\n"
+            )
+          } else {
+            console.error("❌ Erro inesperado:", err)
+          }
+          throw err
         }
-        throw err
       }
     },
     [session?.user?.apiToken]
