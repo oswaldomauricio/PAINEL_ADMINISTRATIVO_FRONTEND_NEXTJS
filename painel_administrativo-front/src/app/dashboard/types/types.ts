@@ -1,39 +1,71 @@
+export type Status =
+  | "NOVO"
+  | "PENDENTE"
+  | "RESOLVIDO"
+  | "REPROVADO"
+  | "CANCELADO"
+  | "CONCLUIDO"
+
 export interface ProductDivergence {
-  productCode: string
-  quantity: number
-  value: number
-  type?: "FALTA" | "SOBRA" | "AVARIA" | "OUTRO"
-  entryNote?: number
+  codigo_produto: string
+  quantidade: number
+  valor: number
+  tipo?: "FALTA" | "SOBRA" | "AVARIA" | "OUTRO"
 }
 
 export interface divergenciasType {
-  id: string
-  store: string // loja
-  supplier: string // fornecedor
-  requestDate: Date // data
-  supplierDocument: string //cnpj do fornecedor
-  openDays: number // dias restantes
-  status: "NOVO" | "PENDENTE" | "RESOLVIDO" | "CANCELADO" // status
+  id: number
+  loja: string
+  data_solicitacao: Date
+  data_atualizacao: Date
+  dias_em_aberto: number
+  usuario_cadastro: string
+  fornecedor: string
+  nota: string
+  cpfCnpj: string
+  status: Status[]
   produtos: ProductDivergence[]
-  description: string // descrição
+  descricao: string
 }
 
 export interface ProductWarranty {
-  productCode: string
-  quantity: number
-  value: number
+  codigo_produto: string
+  quantidade: number
+  valor_unitario: number
 }
 
 export interface garantiasType {
-  id: string
-  store: string // loja
-  requestDate: Date // data
-  openDays: number // dias restantes
-  supplier: string // fornecedor
-  salesNote: string // nota fiscal de venda
-  customerName: string
-  customerDocument: string
-  status: "NOVO" | "PENDENTE" | "RESOLVIDO" | "CANCELADO" // status
+  id: number
+  loja: string
+  data_solicitacao: Date
+  data_atualizacao: Date
+  dias_em_aberto: number
+  fornecedor: string
+  nota_de_venda: string
+  nome_cliente: string
+  usuario_cadastro: string
+  cpfCnpj: string
+  status: Status[]
   produtos: ProductWarranty[]
-  description: string // descrição
+  descricao: string
+}
+
+export type CriarGarantiaDTO = {
+  nome_cliente: string
+  loja: number
+  fornecedor: string
+  cpf_cnpj: string
+  nota: string
+  id_usuario: number
+  produtos: ProductWarranty[]
+  descricao: string
+}
+
+export interface attachments {
+  id: number
+  name: string
+  size: number
+  type: string
+  uploadedBy: string
+  uploadedAt: Date
 }
