@@ -1,59 +1,72 @@
 "use client"
 
 import { useState } from "react"
-import { toDate } from "date-fns"
+import { TicketGarantia } from "@/app/service/TicketsGarantiaService"
 import { Plus, Search, Wrench } from "lucide-react"
 
-import type { garantiasType } from "../../types/types"
+import type { CriarGarantiaDTO, garantiasType } from "../../types/types"
 
-import { garantiasData } from "../../_data/garantiasData"
-
+import { useApi } from "@/hooks/use-api"
+import { useStore } from "@/contexts/lojaContext"
 import { Button } from "@/components/ui/button"
 import { CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { InputGroup, InputGroupText } from "@/components/ui/input-group"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import BasicTableGarantia from "../../../components/table_garantia"
 import { NewRequestModalWarranty } from "@/app/components/new-request-modal-warranty"
+import SelectLojas from "@/app/components/ui/select-lojas"
+
+const ticketGarantiaService = new TicketGarantia()
 
 export default function GarantiaPage() {
   const [search, setSearch] = useState("")
   const [isNewRequestOpen, setIsNewRequestOpen] = useState(false)
-  const [tickets, setTickets] = useState(garantiasData)
+  const { store } = useStore()
+  const { apiCall, token } = useApi()
 
-  const handleNewRequest = (requestData: garantiasType) => {
-    const newTicket = {
-      id: `DV-${String(tickets.length + 1).padStart(3, "0")}`,
-      store: requestData.store,
-      requestDate: toDate(Date.now()),
-      openDays: Math.abs(
-        Math.floor(
-          (new Date(requestData.requestDate).getTime() - Date.now()) /
-            (1000 * 60 * 60 * 24)
-        )
-      ),
-      supplier: requestData.supplier,
-      salesNote: requestData.salesNote,
-      description: requestData.description,
-      produtos: (requestData.produtos ?? []).map((item) => ({
-        productCode: item.productCode,
-        quantity: item.quantity,
-        value: item.value,
-      })),
-      customerName: requestData.customerName,
-      customerDocument: requestData.customerDocument,
-      status: "NOVO" as const,
+  const [tickets, setTickets] = useState<garantiasType[]>([])
+  const [loading, setLoading] = useState(false)
+
+  const handleFetchTickets = async () => {
+    if (!token) return
+    setLoading(true)
+    try {
+      const result = await ticketGarantiaService.listarTicketsPorLoja(
+        apiCall,
+        store
+      )
+      setTickets(result)
+    } catch (error) {
+      console.error("Erro ao buscar tickets:", error)
+    } finally {
+      setLoading(false)
     }
-    setTickets([...tickets, newTicket])
-    setIsNewRequestOpen(false)
-    console.log(newTicket, "NEW TICKET")
   }
+
+  const handleNewRequest = async (requestData: CriarGarantiaDTO) => {
+    try {
+      const novoTicket = await ticketGarantiaService.criarTicket(
+        apiCall,
+        requestData
+      )
+      if (novoTicket) {
+        setTickets((prev) => [...prev, novoTicket])
+        setIsNewRequestOpen(false)
+      }
+    } catch (error) {
+      console.error("Erro ao criar ticket:", error)
+    }
+  }
+
+  const filteredData = tickets.filter(
+    (item) =>
+      item.id.toString().includes(search.toLowerCase()) ||
+      item.dias_em_aberto.toString().includes(search.toLowerCase()) ||
+      item.loja.toString().includes(search.toLowerCase()) ||
+      item.fornecedor.toLowerCase().includes(search.toLowerCase()) ||
+      item.nome_cliente.toLowerCase().includes(search.toLowerCase()) ||
+      item.descricao.toLowerCase().includes(search.toLowerCase())
+  )
 
   return (
     <div className="container py-4">
@@ -76,26 +89,24 @@ export default function GarantiaPage() {
             </Button>
           </div>
         </div>
+
         <div className="col-span-2 row-start-2 py-2">
           <div className="flex flex-row items-center gap-4">
             <CardContent className="w-2/6">
-              <Select>
-                <SelectTrigger>
-                  <SelectValue placeholder="Loja:" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="101">101</SelectItem>
-                  <SelectItem value="102">102</SelectItem>
-                  <SelectItem value="103">103</SelectItem>
-                </SelectContent>
-              </Select>
+              <SelectLojas title="" />
             </CardContent>
-            <Button variant={"default"} className="w-2/8 gap-4">
+            <Button
+              variant={"default"}
+              className="w-2/8 gap-4"
+              onClick={handleFetchTickets}
+              disabled={loading}
+            >
               <Search className="h-4 w-4" />
-              Relatórios
+              {loading ? "Carregando..." : "Relatórios"}
             </Button>
           </div>
         </div>
+
         <div className="col-span-3 row-start-3">
           <InputGroup className="w-full">
             <InputGroupText aria-hidden>
@@ -109,10 +120,12 @@ export default function GarantiaPage() {
             />
           </InputGroup>
         </div>
+
         <div className="col-span-3 row-start-4 items-center">
-          <BasicTableGarantia search={search} />
+          <BasicTableGarantia data={filteredData} />
         </div>
       </div>
+
       <NewRequestModalWarranty
         isOpen={isNewRequestOpen}
         onClose={() => setIsNewRequestOpen(false)}

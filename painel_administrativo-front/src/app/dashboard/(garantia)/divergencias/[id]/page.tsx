@@ -14,7 +14,11 @@ import {
   // User,
 } from "lucide-react"
 
-import { divergenciasData } from "@/app/dashboard/_data/divergenciasData"
+import type { FileDownloadProps } from "@/app/components/file-download"
+import type {
+  ProductDivergence,
+  divergenciasType,
+} from "@/app/dashboard/types/types"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -30,96 +34,6 @@ import { RichTextEditor } from "@/app/components/rich-text-editor"
 import { Badge } from "@/app/components/ui/badge"
 import { Button } from "@/app/components/ui/button"
 
-// Mock data - in real app this would come from API
-
-type TicketData = {
-  id: string
-  store: string
-  date: string
-  openDays: number
-  supplier: string
-  entryNote: string
-  status: string
-  description: string
-  // customerName: string
-  // customerDocument: string
-  requestDate: string
-  products: {
-    productCode: string
-    quantity: string
-    value: string
-    type: "FALTA" | "SOBRA" | "AVARIA" | "OUTRO"
-    entryNote: number
-  }[]
-  attachments: [
-    {
-      id: 1
-      name: "replacement-receipt.pdf"
-      size: 768000
-      type: "application/pdf"
-      uploadedBy: "Ana Costa"
-      uploadedAt: "2024-01-10T10:00:00Z"
-    },
-    {
-      id: 2
-      name: "replacement-receipt.pdf"
-      size: 768000
-      type: "application/pdf"
-      uploadedBy: "Ana Costa2"
-      uploadedAt: "2024-01-10T10:00:00Z"
-    },
-  ]
-}
-
-const mockTicketData: Record<string, TicketData> = divergenciasData.reduce(
-  (acc, item) => {
-    acc[item.id] = {
-      id: item.id,
-      store: `Loja ${item.store}`,
-      date: item.requestDate.toISOString().split("T")[0],
-      openDays: item.openDays,
-      supplier: item.supplier,
-      entryNote: `NF-${item.produtos[0]?.entryNote || "0000"}`,
-      status: item.status,
-      description: item.description,
-      requestDate: item.requestDate.toISOString().split("T")[0],
-      products: item.produtos.map((p) => ({
-        productCode: p.productCode,
-        quantity: p.quantity.toString(),
-        value: p.value.toFixed(2),
-        type: p.type
-          ? (p.type.toString().toLocaleUpperCase() as
-              | "FALTA"
-              | "SOBRA"
-              | "AVARIA"
-              | "OUTRO")
-          : "OUTRO",
-        entryNote: p.entryNote ?? 0,
-      })),
-      attachments: [
-        {
-          id: 1,
-          name: "replacement-receipt.pdf",
-          size: 768000,
-          type: "application/pdf",
-          uploadedBy: "Ana Costa",
-          uploadedAt: "2024-01-10T10:00:00Z",
-        },
-        {
-          id: 2,
-          name: "replacement-receipt.pdf",
-          size: 768000,
-          type: "application/pdf",
-          uploadedBy: "Ana Costa2",
-          uploadedAt: "2024-01-10T10:00:00Z",
-        },
-      ],
-    }
-    return acc
-  },
-  {} as Record<string, TicketData>
-)
-
 // Mock user role - in real app this would come from auth context
 const currentUserRole = "ADMIN_GUARANTEE" // or "USER"
 
@@ -132,8 +46,8 @@ export default function TicketPage({
   const ticketId = id
   const router = useRouter()
 
-  // Get ticket data directly
-  const ticket = mockTicketData[ticketId as keyof typeof mockTicketData]
+  const [ticket, setTicket] = useState<divergenciasType>()
+  const [arquivos, setArquivos] = useState<FileDownloadProps>()
   const [newStatus, setNewStatus] = useState(ticket?.status || "")
   const [statusUpdate, setStatusUpdate] = useState("")
 
@@ -169,21 +83,21 @@ export default function TicketPage({
     )
   }
 
-  const handleStatusUpdate = () => {
-    if (statusUpdate.trim()) {
-      // In real app, this would make an API call
-      console.log("Status update:", {
-        status: newStatus,
-        message: statusUpdate,
-      })
-      setStatusUpdate("")
-      // Update ticket status
-      mockTicketData[ticketId as keyof typeof mockTicketData] = {
-        ...ticket,
-        status: newStatus,
-      }
-    }
-  }
+  // const handleStatusUpdate = () => {
+  //   if (statusUpdate.trim()) {
+  //     // In real app, this would make an API call
+  //     console.log("Status update:", {
+  //       status: newStatus,
+  //       message: statusUpdate,
+  //     })
+  //     setStatusUpdate("")
+  //     // Update ticket status
+  //     mockTicketData[ticketId as keyof typeof mockTicketData] = {
+  //       ...ticket,
+  //       status: newStatus,
+  //     }
+  //   }
+  // }
 
   const handleFilesAdd = (files: File[]) => {
     console.log(
@@ -215,7 +129,7 @@ export default function TicketPage({
             </Button>
 
             <Badge
-              className={`${getStatusColor(ticket.status)} text-lg px-4 py-2`}
+              className={`${getStatusColor(ticket.status.toString())} text-lg px-4 py-2`}
             >
               {ticket.status}
             </Badge>
@@ -237,7 +151,7 @@ export default function TicketPage({
                       <Store className="h-4 w-4 text-gray-500" />
                       <div>
                         <p className="text-sm text-gray-500">Loja</p>
-                        <p className="font-medium">{ticket.store}</p>
+                        <p className="font-medium">{ticket.loja}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
@@ -247,7 +161,9 @@ export default function TicketPage({
                           Data de solicitação
                         </p>
                         <p className="font-medium">
-                          {new Date(ticket.requestDate).toLocaleDateString()}
+                          {new Date(
+                            ticket.dataSolicitacao
+                          ).toLocaleDateString()}
                         </p>
                       </div>
                     </div>
@@ -255,27 +171,29 @@ export default function TicketPage({
                       <Clock className="h-4 w-4 text-gray-500" />
                       <div>
                         <p className="text-sm text-gray-500">Dias em aberto</p>
-                        <p className="font-medium">{ticket.openDays} dias</p>
+                        <p className="font-medium">
+                          {ticket.diasEmAberto} dias
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
                       <FileText className="h-4 w-4 text-gray-500" />
                       <div>
                         <p className="text-sm text-gray-500">Nota de entrada</p>
-                        <p className="font-medium">{ticket.entryNote}</p>
+                        <p className="font-medium">{ticket.nota}</p>
                       </div>
                     </div>
                   </div>
                   <div className="pt-4 border-t">
                     <p className="text-sm text-gray-500 mb-2">Fornecedor</p>
-                    <p className="font-medium">{ticket.supplier}</p>
+                    <p className="font-medium">{ticket.fornecedor}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500 mb-2">Descrição</p>
                     <p
                       className="text-gray-900"
                       dangerouslySetInnerHTML={{
-                        __html: ticket.description
+                        __html: ticket.descricao
                           .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
                           .replace(/\*(.*?)\*/g, "<em>$1</em>")
                           .replace(/\n/g, "<br>"),
@@ -294,37 +212,38 @@ export default function TicketPage({
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3 p-8">
-                    {ticket.products.map((product, index) => (
-                      <div
-                        key={index}
-                        className="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
-                      >
-                        <div>
-                          <p className="font-medium">{product.productCode}</p>
-                          <p className="text-sm text-gray-500">
-                            Qtd: {product.quantity}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            Nota de entrada: {product.entryNote}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            Tipo de divergência: {product.type}
-                          </p>
+                    {ticket.produtos.map(
+                      (product: ProductDivergence, index: number) => (
+                        <div
+                          key={index}
+                          className="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
+                        >
+                          <div>
+                            <p className="font-medium">
+                              {product.codigo_produto}
+                            </p>
+                            <p className="text-sm text-gray-500">
+                              Qtd: {product.quantidade}
+                            </p>
+                            <p className="text-sm text-gray-500">
+                              Tipo de divergência: {product.tipo}
+                            </p>
+                          </div>
+                          <p className="font-medium">R$ {product.valor}</p>
                         </div>
-                        <p className="font-medium">R$ {product.value}</p>
-                      </div>
-                    ))}
+                      )
+                    )}
                   </div>
                 </CardContent>
               </Card>
               {/* Conversation History */}
               <ConversationHistory
-                ticketId={ticket.id}
+                ticketId={ticket.id.toString()}
                 userRole={currentUserRole}
               />
               {/* File Downloads */}
               <FileDownload
-                attachments={ticket.attachments || []}
+                attachments={arquivos?.attachments || []}
                 onFilesAdd={handleFilesAdd}
                 // canUpload={currentUserRole === "ADMIN_GUARANTEE"}
               />
@@ -339,7 +258,10 @@ export default function TicketPage({
                 <CardContent className="space-y-4 p-8">
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Novo Status</label>
-                    <Select value={newStatus} onValueChange={setNewStatus}>
+                    <Select
+                      value={newStatus.toString()}
+                      onValueChange={setNewStatus}
+                    >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -364,7 +286,7 @@ export default function TicketPage({
                   </div>
 
                   <Button
-                    onClick={handleStatusUpdate}
+                    // onClick={handleStatusUpdate}
                     className="w-full"
                     disabled={
                       !statusUpdate.trim() || newStatus === ticket.status

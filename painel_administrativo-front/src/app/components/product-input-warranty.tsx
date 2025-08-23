@@ -8,9 +8,9 @@ import { Label } from "@/app/components/ui/label"
 
 interface ProductInputProps {
   product: {
-    code: string
-    quantity: string
-    value: string
+    codigo_produto: string
+    quantidade: number
+    valor_unitario: number
   }
   onUpdate: (field: string, value: string) => void
   onRemove: () => void
@@ -29,9 +29,9 @@ export function ProductInput({
         <Label htmlFor="productCode">Código do produto</Label>
         <Input
           id="productCode"
-          value={product.code}
-          onChange={(e) => onUpdate("code", e.target.value)}
-          placeholder="Enter product code"
+          value={product.codigo_produto}
+          onChange={(e) => onUpdate("codigo_produto", e.target.value)}
+          placeholder="Codigo do produto"
         />
       </div>
 
@@ -40,9 +40,9 @@ export function ProductInput({
         <Input
           id="quantity"
           type="number"
-          value={product.quantity}
-          onChange={(e) => onUpdate("quantity", e.target.value)}
-          placeholder="Enter quantity"
+          value={product.quantidade}
+          onChange={(e) => onUpdate("quantidade", e.target.value)}
+          placeholder="Quantidade"
         />
       </div>
 
@@ -52,9 +52,9 @@ export function ProductInput({
           id="value"
           type="number"
           step="0.01"
-          value={product.value}
-          onChange={(e) => onUpdate("value", e.target.value)}
-          placeholder="Enter value"
+          value={product.valor_unitario}
+          onChange={(e) => onUpdate("valor_unitario", e.target.value)}
+          placeholder="Valor do produto"
         />
       </div>
 

@@ -1,9 +1,21 @@
 "use client"
 
 import { useState } from "react"
+import { useSession } from "next-auth/react"
 import { Package, Plus } from "lucide-react"
 
 import type React from "react"
+import type {
+  CriarGarantiaDTO,
+  ProductWarranty,
+} from "../dashboard/types/types"
+
+import {
+  validateCpfCnpj,
+  validateDescricao,
+  validateNota,
+  validateProdutos,
+} from "@/lib/utils"
 
 import { useStore } from "@/contexts/lojaContext"
 import { Button } from "@/components/ui/button"
@@ -24,8 +36,7 @@ import SelectLojas from "./ui/select-lojas"
 interface NewRequestModalProps {
   isOpen: boolean
   onClose: () => void
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onSubmit: (data: any) => void
+  onSubmit: (data: CriarGarantiaDTO) => void
 }
 
 export function NewRequestModalWarranty({
@@ -33,56 +44,75 @@ export function NewRequestModalWarranty({
   onClose,
   onSubmit,
 }: NewRequestModalProps) {
-  const [formData, setFormData] = useState({
-    store: "",
-    supplier: "",
-    salesNote: "",
-    requestDate: Date.now(),
-    customerName: "",
-    customerDocument: "",
-    description: "",
-    products: [{ code: "", quantity: "", value: "" }],
-    files: [] as File[],
-  })
-
   const { store } = useStore()
-
-  console.log(store + "loja no cmp")
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    onSubmit(formData)
-    // Reset form
-    setFormData({
-      store: "",
-      supplier: "",
-      salesNote: "",
-      requestDate: Date.now(),
-      customerName: "",
-      customerDocument: "",
-      description: "",
-      products: [{ code: "", quantity: "", value: "" }],
-      files: [],
-    })
-    console.log(formData, "teste")
-  }
+  const { data: session } = useSession()
+  const [nomeCliente, setNomeCliente] = useState("")
+  const [fornecedor, setFornecedor] = useState("")
+  const [nota, setNota] = useState("")
+  const [cpfCnpj, setCpfCnpj] = useState("")
+  const [descricao, setDescricao] = useState("")
+  const [produtos, setProdutos] = useState<ProductWarranty[]>([
+    { codigo_produto: "", quantidade: 1, valor_unitario: 0 },
+  ])
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [files, setFiles] = useState<any[]>([])
 
   const addProduct = () => {
-    setFormData({
-      ...formData,
-      products: [...formData.products, { code: "", quantity: "", value: "" }],
-    })
+    setProdutos([
+      ...produtos,
+      { codigo_produto: "", quantidade: 1, valor_unitario: 0 },
+    ])
   }
 
   const removeProduct = (index: number) => {
-    const newProducts = formData.products.filter((_, i) => i !== index)
-    setFormData({ ...formData, products: newProducts })
+    setProdutos(produtos.filter((_, i) => i !== index))
   }
 
-  const updateProduct = (index: number, field: string, value: string) => {
-    const newProducts = [...formData.products]
-    newProducts[index] = { ...newProducts[index], [field]: value }
-    setFormData({ ...formData, products: newProducts })
+  const updateProduct = (
+    index: number,
+    field: keyof ProductWarranty,
+    value: string | number
+  ) => {
+    const updated = [...produtos]
+    updated[index] = { ...updated[index], [field]: value }
+    setProdutos(updated)
+  }
+
+  const isFormValid = () => {
+    return (
+      store &&
+      fornecedor.trim().length > 0 &&
+      nota.trim().length >= 1 &&
+      nota.trim().length <= 9 &&
+      nomeCliente.trim().length > 0 &&
+      (cpfCnpj.length === 11 || cpfCnpj.length === 14) &&
+      produtos.length > 0 &&
+      produtos.every(
+        (p) =>
+          p.codigo_produto.trim().length > 0 &&
+          p.quantidade > 0 &&
+          p.valor_unitario >= 0
+      )
+    )
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (!store) return
+
+    const payload: CriarGarantiaDTO = {
+      nome_cliente: nomeCliente,
+      loja: Number(store),
+      fornecedor,
+      cpf_cnpj: cpfCnpj,
+      nota,
+      descricao,
+      id_usuario: Number(session?.user.id),
+      produtos,
+    }
+
+    onSubmit(payload)
   }
 
   return (
@@ -100,16 +130,14 @@ export function NewRequestModalWarranty({
               <CardTitle className="text-lg">Informações</CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
-              <SelectLojas />
+              <SelectLojas title="lojas *" />
 
               <div className="space-y-2">
                 <Label htmlFor="supplier">Fornecedor *</Label>
                 <Input
                   id="supplier"
-                  value={formData.supplier}
-                  onChange={(e) =>
-                    setFormData({ ...formData, supplier: e.target.value })
-                  }
+                  value={fornecedor}
+                  onChange={(e) => setFornecedor(e.target.value)}
                   placeholder="Nome do fornecedor"
                   required
                 />
@@ -119,23 +147,26 @@ export function NewRequestModalWarranty({
                 <Label htmlFor="salesNote">Nota de venda *</Label>
                 <Input
                   id="salesNote"
-                  value={formData.salesNote}
-                  onChange={(e) =>
-                    setFormData({ ...formData, salesNote: e.target.value })
-                  }
+                  value={nota}
+                  onChange={(e) => setNota(e.target.value)}
                   placeholder="Nota"
                   required
+                  minLength={1}
+                  maxLength={9}
                 />
+                {validateNota(nota) && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {validateNota(nota)}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="customerName">Nome do cliente *</Label>
                 <Input
                   id="customerName"
-                  value={formData.customerName}
-                  onChange={(e) =>
-                    setFormData({ ...formData, customerName: e.target.value })
-                  }
+                  value={nomeCliente}
+                  onChange={(e) => setNomeCliente(e.target.value)}
                   placeholder="Cliente"
                   required
                 />
@@ -145,16 +176,21 @@ export function NewRequestModalWarranty({
                 <Label htmlFor="customerDocument">CPF/CNPJ do cliente *</Label>
                 <Input
                   id="customerDocument"
-                  value={formData.customerDocument}
+                  value={cpfCnpj}
                   onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      customerDocument: e.target.value,
-                    })
+                    setCpfCnpj(e.target.value.replace(/\D/g, ""))
                   }
                   placeholder="CPF / CNPJ"
                   required
+                  minLength={11}
+                  maxLength={14}
+                  pattern="^[0-9]{11}$|^[0-9]{14}$"
                 />
+                {validateCpfCnpj(cpfCnpj) && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {validateCpfCnpj(cpfCnpj)}
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -176,17 +212,23 @@ export function NewRequestModalWarranty({
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {formData.products.map((product, index) => (
+              {produtos.map((product, index) => (
                 <ProductInput
                   key={index}
                   product={product}
                   onUpdate={(field, value) =>
-                    updateProduct(index, field, value)
+                    updateProduct(index, field as keyof ProductWarranty, value)
                   }
                   onRemove={() => removeProduct(index)}
-                  canRemove={formData.products.length > 1}
+                  canRemove={produtos.length > 1}
                 />
               ))}
+
+              {validateProdutos(produtos) && (
+                <p className="text-red-500 text-xs mt-1">
+                  {validateProdutos(produtos)}
+                </p>
+              )}
             </CardContent>
           </Card>
 
@@ -196,12 +238,12 @@ export function NewRequestModalWarranty({
               <CardTitle className="text-lg">Descrição</CardTitle>
             </CardHeader>
             <CardContent>
-              <RichTextEditor
-                value={formData.description}
-                onChange={(value) =>
-                  setFormData({ ...formData, description: value })
-                }
-              />
+              <RichTextEditor value={descricao} onChange={setDescricao} />
+              {validateDescricao(descricao) && (
+                <p className="text-red-500 text-xs mt-1">
+                  {validateDescricao(descricao)}
+                </p>
+              )}
             </CardContent>
           </Card>
 
@@ -211,10 +253,7 @@ export function NewRequestModalWarranty({
               <CardTitle className="text-lg">Anexar arquivos</CardTitle>
             </CardHeader>
             <CardContent>
-              <FileUpload
-                files={formData.files}
-                onFilesChange={(files) => setFormData({ ...formData, files })}
-              />
+              <FileUpload files={files} onFilesChange={setFiles} />
             </CardContent>
           </Card>
 
@@ -223,7 +262,14 @@ export function NewRequestModalWarranty({
             <Button type="button" variant="outline" onClick={onClose}>
               Cancelar
             </Button>
-            <Button type="submit">Enviar solicitação</Button>
+
+            {isFormValid() ? (
+              <Button type="submit">Enviar solicitação</Button>
+            ) : (
+              <p className="text-red-500 text-sm flex items-center">
+                Preencha todos os campos obrigatórios corretamente para enviar.
+              </p>
+            )}
           </div>
         </form>
       </DialogContent>
