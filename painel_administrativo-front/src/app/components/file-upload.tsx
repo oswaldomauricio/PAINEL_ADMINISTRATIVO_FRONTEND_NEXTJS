@@ -71,7 +71,7 @@ export function FileUpload({ files, onFilesChange }: FileUploadProps) {
       {files.length > 0 && (
         <div className="space-y-2">
           <h4 className="font-medium text-sm">
-            Attached Files ({files.length})
+            Arquivos anexados ({files.length})
           </h4>
           <div className="space-y-2">
             {files.map((file, index) => (

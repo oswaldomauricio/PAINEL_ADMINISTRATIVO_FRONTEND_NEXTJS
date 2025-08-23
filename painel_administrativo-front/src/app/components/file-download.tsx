@@ -20,7 +20,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
-interface Attachment {
+export interface Attachment {
   id: number
   name: string
   size: number
@@ -29,7 +29,7 @@ interface Attachment {
   uploadedAt: string
 }
 
-interface FileDownloadProps {
+export interface FileDownloadProps {
   attachments: Attachment[]
   onFilesAdd?: (files: File[]) => void
   canUpload?: boolean
