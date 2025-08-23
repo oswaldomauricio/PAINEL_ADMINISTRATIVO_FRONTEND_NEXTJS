@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { LojasService } from "@/app/service/lojasService"
 import { useSession } from "next-auth/react"
 
 import { useApi } from "@/hooks/use-api"
@@ -12,7 +13,13 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
-export default function SelectLojas() {
+interface SelectType {
+  title: string
+}
+
+const lojasService = new LojasService()
+
+export default function SelectLojas({ title }: SelectType) {
   const session = useSession()
   const id_usuario = session.data?.user.id
 
@@ -23,25 +30,25 @@ export default function SelectLojas() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    if (!id_usuario) {
+      setLoading(false)
+      return
+    }
+
     const fetchStores = async () => {
       setLoading(true)
       try {
-        const response = await apiCall(`/v1/lojas/${id_usuario}`, {
-          method: "GET",
-        })
-
-        if (response && Array.isArray(response)) {
-          setStores(response.map((item) => item.loja))
-        }
+        const storesData = await lojasService.listarLojas(apiCall, id_usuario)
+        setStores(storesData)
       } catch (error) {
-        console.error("Erro ao buscar lojas:", error)
+        console.error("Erro ao buscar lojas no componente:", error)
       } finally {
         setLoading(false)
       }
     }
 
     fetchStores()
-  }, [apiCall, id_usuario])
+  }, [apiCall, id_usuario]) // As dependências continuam as mesmas
 
   useEffect(() => {
     if (stores.length > 0 && store === null) {
@@ -51,12 +58,12 @@ export default function SelectLojas() {
 
   return (
     <div className="space-y-4">
-      <Label htmlFor="store">Loja *</Label>
+      {title && <Label htmlFor="store">{title}</Label>}
       <Select
         value={store !== null ? store.toString() : ""}
         onValueChange={(value) => {
           if (value) {
-            console.log(value) //aqui no console ta ok, passa o valor certo.
+            console.log(value)
             setStore(Number(value))
           }
         }}
