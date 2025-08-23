@@ -3,6 +3,7 @@ import { format, formatDistanceToNow, intervalToDuration } from "date-fns"
 import { twMerge } from "tailwind-merge"
 import { z } from "zod"
 
+import type { ProductWarranty } from "@/app/dashboard/types/types"
 import type { LocaleType } from "@/types"
 import type { ClassValue } from "clsx"
 
@@ -131,6 +132,20 @@ export function formatToDDMMYYYY(value: string | number | Date) {
   const year = date.getFullYear()
 
   return `${day}/${month}/${year}`
+}
+
+export function formatToDDMMYYYYHHMM(value: string | number | Date) {
+  const date = new Date(value)
+  if (isNaN(date.getTime())) return ""
+
+  const day = String(date.getDate()).padStart(2, "0")
+  const month = String(date.getMonth() + 1).padStart(2, "0")
+  const year = date.getFullYear()
+
+  const hours = String(date.getHours()).padStart(2, "0")
+  const minutes = String(date.getMinutes()).padStart(2, "0")
+
+  return `${day}/${month}/${year} ${hours}:${minutes}`
 }
 
 export function formatRelativeDate(value?: string | number | Date) {
@@ -355,13 +370,64 @@ export function getDictionaryValue(
 
 export const getStatusColor = (status: string) => {
   switch (status.toLowerCase()) {
-    case "NOVO":
-      return "bg-red-100 text-red-800"
-    case "PENDENTE":
+    case "novo":
+      return "bg-blue-100 text-blue-800"
+    case "pendente":
       return "bg-yellow-100 text-yellow-800"
-    case "RESOLVIDO":
+    case "resolvido":
+      return "bg-green-100 text-green-800"
+    case "reprovado":
+      return "bg-red-100 text-red-800"
+    case "cancelado":
+      return "bg-red-100 text-red-800"
+    case "concluido":
       return "bg-green-100 text-green-800"
     default:
       return "bg-gray-100 text-gray-800"
   }
+}
+export const getDiasEmAbertoColor = (dias: number) => {
+  return dias <= 10
+    ? "bg-blue-100 text-blue-800"
+    : dias <= 30
+      ? "bg-yellow-100 text-yellow-800"
+      : "bg-red-100 text-red-800"
+}
+
+export const validateNota = (nota: string) => {
+  if (nota.trim().length < 1 || nota.trim().length > 9) {
+    return "A nota deve ter entre 1 e 9 caracteres."
+  }
+  return null
+}
+
+export const validateCpfCnpj = (cpfCnpj: string) => {
+  if (!/^[0-9]{11}$|^[0-9]{14}$/.test(cpfCnpj)) {
+    return "Digite um CPF com 11 dígitos ou um CNPJ com 14 dígitos."
+  }
+  return null
+}
+
+export const validateProdutos = (produtos: ProductWarranty[]) => {
+  if (produtos.length === 0) {
+    return "Adicione pelo menos um produto."
+  }
+  if (
+    !produtos.every(
+      (p) =>
+        p.codigo_produto.trim().length > 0 &&
+        p.quantidade > 0 &&
+        p.valor_unitario >= 0
+    )
+  ) {
+    return "Todos os produtos precisam ter código, quantidade e valor válidos."
+  }
+  return null
+}
+
+export const validateDescricao = (descricao: string) => {
+  if (!descricao || descricao.trim().length === 0) {
+    return "A descrição é obrigatória."
+  }
+  return null
 }
