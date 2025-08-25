@@ -68,4 +68,27 @@ export interface attachments {
   type: string
   uploadedBy: string
   uploadedAt: Date
+  fileDownloadUri: string
+}
+
+export interface FileUpload {
+  id?: number | undefined
+  fileName: string
+  fileDownloadUri: string
+  fileType: string
+  size: string
+}
+
+export interface Page<T> {
+  content: T[]
+  totalElements: number
+  totalPages: number
+  size: number
+  number: number
+}
+
+export interface TicketPage {
+  content: garantiasType[]
+  totalElements: number
+  totalPages: number
 }

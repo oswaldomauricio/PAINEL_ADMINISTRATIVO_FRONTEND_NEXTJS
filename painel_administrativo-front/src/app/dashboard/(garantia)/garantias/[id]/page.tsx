@@ -1,9 +1,11 @@
 "use client"
 
-import { use, useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
+import { Files } from "@/app/service/FileService"
 import { TicketGarantia } from "@/app/service/TicketsGarantiaService"
+import { toast } from "sonner"
 import {
   ArrowLeft,
   Calendar,
@@ -15,7 +17,7 @@ import {
   User,
 } from "lucide-react"
 
-import type { FileDownloadProps } from "@/app/components/file-download"
+import type { Attachment } from "@/app/components/file-download"
 import type { garantiasType } from "@/app/dashboard/types/types"
 
 import { formatToDDMMYYYYHHMM, getStatusColor } from "@/lib/utils"
@@ -39,38 +41,107 @@ const currentUserRole = "ADMIN_GUARANTEE"
 
 const ticketGarantiaService = new TicketGarantia()
 
-export default function TicketPage({
-  params,
-}: {
-  params: Promise<{ id: string }>
-}) {
-  const { id } = use(params)
-  const ticketId = id
+const fileService = new Files()
+
+export default function TicketPage() {
+  const params = useParams()
+  const ticketId = params.id as string
+  const id = ticketId
   const router = useRouter()
 
   const { apiCall, token } = useApi()
 
   const [ticket, setTicket] = useState<garantiasType>()
-  const [arquivos, setArquivos] = useState<FileDownloadProps>()
   const [newStatus, setNewStatus] = useState(ticket?.status || "")
   const [statusUpdate, setStatusUpdate] = useState("")
+  const [isUploading, setIsUploading] = useState(false)
+  const [attachments, setAttachments] = useState<Attachment[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  const fetchData = useCallback(async () => {
+    if (!token || !id) {
+      setIsLoading(false)
+      return
+    }
+    try {
+      const ticketResult = await ticketGarantiaService.listarTicketsPorId(
+        apiCall,
+        id
+      )
+      setTicket(ticketResult || undefined)
+      if (ticketResult) {
+        setNewStatus(ticketResult.status || "")
+      }
+
+      const arquivosResult = await fileService.listarArquivosPorTicket(
+        apiCall,
+        id + 100
+      )
+      setAttachments(arquivosResult)
+    } catch (error) {
+      console.error("Erro ao buscar dados do ticket ou arquivos:", error)
+      toast.error("Falha ao carregar dados do ticket.")
+    } finally {
+      setIsLoading(false)
+    }
+  }, [token, apiCall, id])
 
   useEffect(() => {
-    const fetchTickets = async () => {
-      if (!token) return
-      try {
-        const result = await ticketGarantiaService.listarTicketsPorId(
-          apiCall,
-          id
-        )
-        setTicket(result || undefined)
-      } catch (error) {
-        console.error("Erro ao buscar tickets:", error)
-      }
+    fetchData()
+  }, [fetchData])
+
+  const handleFilesAdd = async (files: File[]) => {
+    if (!files || files.length === 0) {
+      toast.warning("Nenhum arquivo selecionado.")
+      return
     }
 
-    fetchTickets()
-  }, [token, apiCall, id])
+    setIsUploading(true)
+    toast.info("Iniciando upload dos arquivos...")
+
+    try {
+      const renamedFiles = files.map((file) => {
+        const fileExtension = file.name.split(".").pop()
+        const fileNameWithoutExt = file.name.substring(
+          0,
+          file.name.lastIndexOf(".")
+        )
+        const uniqueName = `${fileNameWithoutExt}_${Date.now()}.${fileExtension}`
+        return new File([file], uniqueName, { type: file.type })
+      })
+
+      const result = await fileService.uploadMultipleFiles(
+        apiCall,
+        ticketId + 100,
+        renamedFiles
+      )
+
+      if (result) {
+        toast.success(`${files.length} arquivo(s) enviado(s) com sucesso!`)
+        await fetchData()
+      } else {
+        throw new Error("A resposta do upload foi nula.")
+      }
+    } catch (error) {
+      console.error("Falha no upload:", error)
+      toast.error(`Falha no upload, tente novamente!`)
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div
+          className="w-16 h-16 border-4 border-dashed rounded-full animate-spin border-blue-500"
+          role="status"
+        >
+          <span className="sr-only">Carregando...</span>
+        </div>
+      </div>
+    )
+  }
 
   if (!ticket) {
     return (
@@ -105,14 +176,6 @@ export default function TicketPage({
   //     }
   //   }
   // }
-
-  const handleFilesAdd = (files: File[]) => {
-    console.log(
-      "New files added:",
-      files.map((f) => f.name)
-    )
-    // In real app, this would upload files to server
-  }
 
   const statuses = ["NOVO", "PENDENTE", "RESOLVIDO", "CANCELADO"]
 
@@ -265,9 +328,12 @@ export default function TicketPage({
               />
               {/* File Downloads */}
               <FileDownload
-                attachments={arquivos?.attachments || []}
+                onFileRemove={() => {
+                  console.log("não é possivel excluir")
+                }}
+                attachments={attachments}
                 onFilesAdd={handleFilesAdd}
-                // canUpload={currentUserRole === "ADMIN_GUARANTEE"}
+                isUploading={isUploading} // <-- NOVO: Passando o estado de carregamento
               />
             </div>
 

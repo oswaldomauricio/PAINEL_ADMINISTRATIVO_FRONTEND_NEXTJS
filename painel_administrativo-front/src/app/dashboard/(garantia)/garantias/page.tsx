@@ -1,10 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { TicketGarantia } from "@/app/service/TicketsGarantiaService"
+import { toast } from "sonner"
 import { Plus, Search, Wrench } from "lucide-react"
 
-import type { CriarGarantiaDTO, garantiasType } from "../../types/types"
+import type { CriarGarantiaDTO, TicketPage } from "../../types/types"
 
 import { useApi } from "@/hooks/use-api"
 import { useStore } from "@/contexts/lojaContext"
@@ -24,24 +25,38 @@ export default function GarantiaPage() {
   const { store } = useStore()
   const { apiCall, token } = useApi()
 
-  const [tickets, setTickets] = useState<garantiasType[]>([])
+  // paginação
+  const [page, setPage] = useState(0)
+  const [size] = useState(20)
+  const [ticketPage, setTicketPage] = useState<TicketPage>({
+    content: [],
+    totalElements: 0,
+    totalPages: 0,
+  })
+
   const [loading, setLoading] = useState(false)
 
-  const handleFetchTickets = async () => {
-    if (!token) return
+  const handleFetchTickets = useCallback(async () => {
+    if (!token || !store) return
     setLoading(true)
     try {
       const result = await ticketGarantiaService.listarTicketsPorLoja(
         apiCall,
-        store
+        store,
+        page,
+        size
       )
-      setTickets(result)
+      setTicketPage(result)
     } catch (error) {
       console.error("Erro ao buscar tickets:", error)
     } finally {
       setLoading(false)
     }
-  }
+  }, [token, store, apiCall, page, size])
+
+  useEffect(() => {
+    handleFetchTickets()
+  }, [handleFetchTickets])
 
   const handleNewRequest = async (requestData: CriarGarantiaDTO) => {
     try {
@@ -50,23 +65,29 @@ export default function GarantiaPage() {
         requestData
       )
       if (novoTicket) {
-        setTickets((prev) => [...prev, novoTicket])
+        setTicketPage((prev) => ({
+          ...prev,
+          content: [novoTicket, ...prev.content],
+        }))
         setIsNewRequestOpen(false)
       }
     } catch (error) {
+      toast.error("Erro ao criar ticket:")
       console.error("Erro ao criar ticket:", error)
     }
   }
 
-  const filteredData = tickets.filter(
-    (item) =>
-      item.id.toString().includes(search.toLowerCase()) ||
-      item.dias_em_aberto.toString().includes(search.toLowerCase()) ||
-      item.loja.toString().includes(search.toLowerCase()) ||
-      item.fornecedor.toLowerCase().includes(search.toLowerCase()) ||
-      item.nome_cliente.toLowerCase().includes(search.toLowerCase()) ||
-      item.descricao.toLowerCase().includes(search.toLowerCase())
-  )
+  const filteredData = Array.isArray(ticketPage.content)
+    ? ticketPage.content.filter(
+        (item) =>
+          item.id.toString().includes(search.toLowerCase()) ||
+          item.dias_em_aberto.toString().includes(search.toLowerCase()) ||
+          item.loja.toString().includes(search.toLowerCase()) ||
+          item.fornecedor.toLowerCase().includes(search.toLowerCase()) ||
+          item.nome_cliente.toLowerCase().includes(search.toLowerCase()) ||
+          item.descricao.toLowerCase().includes(search.toLowerCase())
+      )
+    : []
 
   return (
     <div className="container py-4">
@@ -124,6 +145,27 @@ export default function GarantiaPage() {
         <div className="col-span-3 row-start-4 items-center">
           <BasicTableGarantia data={filteredData} />
         </div>
+      </div>
+
+      {/* Paginação */}
+      <div className="flex justify-between items-center mt-4">
+        <Button
+          variant="outline"
+          disabled={page === 0}
+          onClick={() => setPage((p) => p - 1)}
+        >
+          Anterior
+        </Button>
+        <span>
+          Página {page + 1} de {ticketPage.totalPages}
+        </span>
+        <Button
+          variant="outline"
+          disabled={page + 1 >= ticketPage.totalPages}
+          onClick={() => setPage((p) => p + 1)}
+        >
+          Próxima
+        </Button>
       </div>
 
       <NewRequestModalWarranty

@@ -1,14 +1,10 @@
-import type { CriarGarantiaDTO, garantiasType } from "../dashboard/types/types"
+import type {
+  CriarGarantiaDTO,
+  TicketPage,
+  garantiasType,
+} from "../dashboard/types/types"
 
 type ApiCallFunction = (url: string, options: RequestInit) => Promise<unknown>
-
-interface TicketPage {
-  content: garantiasType[]
-  totalElements: number
-  totalPages: number
-  size: number
-  number: number
-}
 
 export class TicketGarantia {
   /**
@@ -16,28 +12,28 @@ export class TicketGarantia {
    * @param apiCall
    * @param id_loja
    * @param id_ticket
+   * @param page
+   * @param size
    * @returns
    */
   async listarTicketsPorLoja(
     apiCall: ApiCallFunction,
-    id_loja: string | number | null
-  ): Promise<garantiasType[]> {
+    id_loja: string | number | null,
+    page: number,
+    size: number
+  ): Promise<TicketPage> {
     if (!id_loja) {
-      console.warn("loja não fornecido para listar os tickets.")
-      return []
+      console.warn("ID da loja não fornecido para listar os tickets.")
+      return { content: [], totalElements: 0, totalPages: 0 }
     }
 
     try {
-      const response = (await apiCall(
-        `/v1/ticket-garantia/loja/${id_loja}?page=0&size=20&sort=id,asc`,
-        { method: "GET" }
-      )) as TicketPage
+      const url = `/v1/ticket-garantia/loja/${id_loja}?page=${page}&size=${size}&sort=id,desc`
+      const response = (await apiCall(url, {
+        method: "GET",
+      })) as TicketPage
 
-      if (response && Array.isArray(response.content)) {
-        return response.content
-      }
-
-      return []
+      return response || { content: [], totalElements: 0, totalPages: 0 }
     } catch (error) {
       console.error("Erro ao buscar tickets por loja no serviço:", error)
       throw error
