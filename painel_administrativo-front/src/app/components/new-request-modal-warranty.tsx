@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useSession } from "next-auth/react"
+import { toast } from "sonner"
 import { Package, Plus } from "lucide-react"
 
 import type React from "react"
@@ -29,7 +30,6 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RichTextEditor } from "@/app/components//rich-text-editor"
-import { FileUpload } from "@/app/components/file-upload"
 import { ProductInput } from "@/app/components/product-input-warranty"
 import SelectLojas from "./ui/select-lojas"
 
@@ -52,15 +52,13 @@ export function NewRequestModalWarranty({
   const [cpfCnpj, setCpfCnpj] = useState("")
   const [descricao, setDescricao] = useState("")
   const [produtos, setProdutos] = useState<ProductWarranty[]>([
-    { codigo_produto: "", quantidade: 1, valor_unitario: 0 },
+    { codigo_produto: "", quantidade: 0, valor_unitario: 0 },
   ])
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [files, setFiles] = useState<any[]>([])
 
   const addProduct = () => {
     setProdutos([
       ...produtos,
-      { codigo_produto: "", quantidade: 1, valor_unitario: 0 },
+      { codigo_produto: "", quantidade: 0, valor_unitario: 0 },
     ])
   }
 
@@ -113,6 +111,7 @@ export function NewRequestModalWarranty({
     }
 
     onSubmit(payload)
+    toast.success("Ticket criado com sucesso!")
   }
 
   return (
@@ -244,16 +243,6 @@ export function NewRequestModalWarranty({
                   {validateDescricao(descricao)}
                 </p>
               )}
-            </CardContent>
-          </Card>
-
-          {/* File Upload */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Anexar arquivos</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <FileUpload files={files} onFilesChange={setFiles} />
             </CardContent>
           </Card>
 
