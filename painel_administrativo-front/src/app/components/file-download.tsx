@@ -1,6 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
+import { useSession } from "next-auth/react"
+import { toast } from "sonner"
 import {
   Calendar,
   Download,
@@ -16,6 +18,8 @@ import {
 
 import type React from "react"
 
+import { truncateName } from "@/lib/utils"
+
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -27,22 +31,29 @@ export interface Attachment {
   type: string
   uploadedBy: string
   uploadedAt: string
+  fileDownloadUri?: string
 }
 
 export interface FileDownloadProps {
   attachments: Attachment[]
-  onFilesAdd?: (files: File[]) => void
+  onFilesAdd: (files: File[]) => void
+  onFileRemove: (fileId: number) => void
   canUpload?: boolean
+  isUploading?: boolean
 }
 
 export function FileDownload({
   attachments,
   onFilesAdd,
+  onFileRemove,
   canUpload = true,
+  isUploading = false,
 }: FileDownloadProps) {
-  const [isUploading, setIsUploading] = useState(false)
+  const { data: session } = useSession()
+  const apiToken = session?.user.apiToken
+
   const [dragActive, setDragActive] = useState(false)
-  const [allAttachments, setAllAttachments] = useState(attachments)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return "0 Bytes"
@@ -55,6 +66,10 @@ export function FileDownload({
   }
 
   const getFileIcon = (type: string) => {
+    if (!type) {
+      return <File className="h-5 w-5 text-gray-600" />
+    }
+
     if (type.startsWith("image/")) {
       return <ImageIcon className="h-5 w-5 text-blue-600" />
     } else if (type === "application/pdf") {
@@ -62,9 +77,10 @@ export function FileDownload({
     } else if (type.includes("zip") || type.includes("rar")) {
       return <FileArchive className="h-5 w-5 text-yellow-600" />
     }
+
+    // Retorno padrão caso o tipo não corresponda a nenhuma condição
     return <File className="h-5 w-5 text-gray-600" />
   }
-
   const getFileTypeLabel = (type: string) => {
     if (type.startsWith("image/")) return "Image"
     if (type === "application/pdf") return "PDF"
@@ -74,14 +90,56 @@ export function FileDownload({
     return "File"
   }
 
-  const handleDownload = (attachment: Attachment) => {
-    console.log(`Downloading file: ${attachment.name}`)
-    const link = document.createElement("a")
-    link.href = `/placeholder.svg?height=100&width=100`
-    link.download = attachment.name
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
+  const handleDownload = async (attachment: Attachment) => {
+    console.log("Tentando baixar da URL:", attachment.fileDownloadUri)
+    if (!attachment.fileDownloadUri) {
+      toast.error("URL de download não encontrada.")
+      console.error("URI de download não encontrada para:", attachment.name)
+      return
+    }
+
+    // Verificação extra para garantir que o token existe antes de tentar o download
+    if (!apiToken) {
+      toast.error("Você precisa estar logado para baixar arquivos.")
+      console.error("Token de autenticação não encontrado.")
+      return
+    }
+
+    try {
+      toast.info(`Baixando "${attachment.name}"...`)
+
+      const response = await fetch(attachment.fileDownloadUri, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${apiToken}`,
+        },
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null)
+        throw new Error(
+          errorData?.message || `Erro na rede: ${response.statusText}`
+        )
+      }
+
+      const blob = await response.blob()
+
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement("a")
+      link.href = url
+      link.download = attachment.name
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error("Falha ao baixar o arquivo:", error)
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Não foi possível baixar o arquivo."
+      toast.error(message)
+    }
   }
 
   const formatDate = (dateString: string) => {
@@ -89,30 +147,12 @@ export function FileDownload({
   }
 
   const handleFileSelect = (files: FileList | null) => {
-    if (!files) return
-
-    setIsUploading(true)
+    if (!files || files.length === 0) return
     const fileArray = Array.from(files)
-
-    // Simulate upload process
-    setTimeout(() => {
-      const newAttachments = fileArray.map((file, index) => ({
-        id: allAttachments.length + index + 1,
-        name: file.name,
-        size: file.size,
-        type: file.type,
-        uploadedBy: "Current User", // In real app, get from auth context
-        uploadedAt: new Date().toISOString(),
-      }))
-
-      setAllAttachments([...allAttachments, ...newAttachments])
-      setIsUploading(false)
-
-      // Call parent callback if provided
-      if (onFilesAdd) {
-        onFilesAdd(fileArray)
-      }
-    }, 1500) // Simulate upload delay
+    // A única responsabilidade é notificar o componente pai.
+    if (onFilesAdd) {
+      onFilesAdd(fileArray)
+    }
   }
 
   const handleDrag = (e: React.DragEvent) => {
@@ -129,14 +169,9 @@ export function FileDownload({
     e.preventDefault()
     e.stopPropagation()
     setDragActive(false)
-
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFileSelect(e.dataTransfer.files)
     }
-  }
-
-  const removeAttachment = (id: number) => {
-    setAllAttachments(allAttachments.filter((att) => att.id !== id))
   }
 
   return (
@@ -145,13 +180,13 @@ export function FileDownload({
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Download className="h-5 w-5" />
-            Baixar arquivos ({allAttachments.length})
+            Anexos ({attachments.length})
           </div>
           {canUpload && (
             <Button
               variant="outline"
               size="sm"
-              onClick={() => document.getElementById("file-upload")?.click()}
+              onClick={() => fileInputRef.current?.click()}
               disabled={isUploading}
               className="flex items-center gap-2"
             >
@@ -176,6 +211,7 @@ export function FileDownload({
             onDrop={handleDrop}
           >
             <input
+              ref={fileInputRef}
               id="file-upload"
               type="file"
               multiple
@@ -183,7 +219,6 @@ export function FileDownload({
               onChange={(e) => handleFileSelect(e.target.files)}
               className="hidden"
             />
-
             {isUploading ? (
               <div className="flex flex-col items-center gap-2">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -199,8 +234,7 @@ export function FileDownload({
                     Solte os arquivos aqui ou clique para navegar
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
-                    arquivos suportados: PDF, DOC, JPG, PNG, ZIP (Max 10MB por
-                    arquivo)
+                    Suporte para PDF, DOC, JPG, PNG, ZIP (Max 10MB)
                   </p>
                 </div>
               </div>
@@ -209,36 +243,34 @@ export function FileDownload({
         )}
 
         {/* Files List */}
-        {allAttachments.length === 0 ? (
+        {attachments.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             <File className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-            <p>Nenhum arquivo anexado a este tíquete</p>
+            <p>Nenhum arquivo anexado a este tíquete.</p>
             {canUpload && (
               <p className="text-sm mt-2">
-                Carregar arquivos usando a área acima
+                Use a área acima para carregar arquivos.
               </p>
             )}
           </div>
         ) : (
           <div className="space-y-3">
-            {allAttachments.map((attachment) => (
+            {attachments.map((attachment) => (
               <div
                 key={attachment.id}
                 className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors group"
               >
                 <div className="flex items-center gap-4 flex-1">
                   {getFileIcon(attachment.type)}
-
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <p className="font-medium text-sm truncate">
-                        {attachment.name}
+                        {truncateName(attachment.name, 60)}
                       </p>
                       <Badge variant="secondary" className="text-xs">
                         {getFileTypeLabel(attachment.type)}
                       </Badge>
                     </div>
-
                     <div className="flex items-center gap-4 text-xs text-gray-500">
                       <span className="flex items-center gap-1">
                         <File className="h-3 w-3" />
@@ -266,12 +298,11 @@ export function FileDownload({
                     <Download className="h-4 w-4" />
                     Download
                   </Button>
-
                   {canUpload && (
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => removeAttachment(attachment.id)}
+                      onClick={() => onFileRemove(attachment.id)}
                       className="text-red-600 hover:text-red-700 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity"
                     >
                       <X className="h-4 w-4" />
@@ -284,17 +315,15 @@ export function FileDownload({
         )}
 
         {/* Download All Button */}
-        {allAttachments.length > 1 && (
+        {attachments.length > 1 && (
           <div className="pt-4 border-t">
             <Button
               variant="outline"
               className="w-full flex items-center gap-2"
-              onClick={() => {
-                console.log("Downloading all files as ZIP")
-              }}
+              onClick={() => console.log("Downloading all files as ZIP")}
             >
               <Download className="h-4 w-4" />
-              Baixar todos os arquivos ({allAttachments.length})
+              Baixar todos ({attachments.length})
             </Button>
           </div>
         )}
