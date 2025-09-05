@@ -3,7 +3,10 @@ import { format, formatDistanceToNow, intervalToDuration } from "date-fns"
 import { twMerge } from "tailwind-merge"
 import { z } from "zod"
 
-import type { ProductWarranty } from "@/app/dashboard/types/types"
+import type {
+  ProductDivergence,
+  ProductWarranty,
+} from "@/app/dashboard/types/types"
 import type { LocaleType } from "@/types"
 import type { ClassValue } from "clsx"
 
@@ -425,6 +428,23 @@ export const validateProdutos = (produtos: ProductWarranty[]) => {
   return null
 }
 
+export const validateProdutosDivergencia = (produtos: ProductDivergence[]) => {
+  if (produtos.length === 0) {
+    return "Adicione pelo menos um produto."
+  }
+  if (
+    !produtos.every(
+      (p) =>
+        p.codigo_produto.trim().length > 0 &&
+        p.quantidade > 0 &&
+        p.tipo_divergencia !== ""
+    )
+  ) {
+    return "Todos os produtos precisam ter código, quantidade e tipo válidos."
+  }
+  return null
+}
+
 export const validateDescricao = (descricao: string) => {
   if (!descricao || descricao.trim().length === 0) {
     return "A descrição é obrigatória."
@@ -437,4 +457,8 @@ export const truncateName = (name: string, maxLength: number) => {
     return name
   }
   return name.substring(0, maxLength) + "..."
+}
+
+export const handlePrint = () => {
+  window.print()
 }
