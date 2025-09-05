@@ -9,8 +9,7 @@ export type Status =
 export interface ProductDivergence {
   codigo_produto: string
   quantidade: number
-  valor: number
-  tipo?: "FALTA" | "SOBRA" | "AVARIA" | "OUTRO"
+  tipo_divergencia: "FALTA" | "SOBRA" | "AVARIA" | "OUTROS" | ""
 }
 
 export interface divergenciasType {
@@ -26,6 +25,7 @@ export interface divergenciasType {
   status: Status[]
   produtos: ProductDivergence[]
   descricao: string
+  tipo_divergencia: "FALTA" | "SOBRA" | "AVARIA" | "OUTROS" | ""
 }
 
 export interface ProductWarranty {
@@ -61,6 +61,16 @@ export type CriarGarantiaDTO = {
   descricao: string
 }
 
+export type CriarDivergenciaDTO = {
+  loja: number
+  fornecedor: string
+  cpf_cnpj: string
+  nota: string
+  id_usuario: number
+  produtos: ProductDivergence[]
+  descricao: string
+}
+
 export interface attachments {
   id: number
   name: string
@@ -91,4 +101,28 @@ export interface TicketPage {
   content: garantiasType[]
   totalElements: number
   totalPages: number
+}
+
+export interface TicketPageDivergencia {
+  content: divergenciasType[]
+  totalElements: number
+  totalPages: number
+}
+
+export enum StatusTicket {
+  NOVO,
+  PENDENTE,
+  RECEBIDO,
+  ANALISE,
+  AGUARDANDO_CLIENTE,
+  AGUARDANDO_FORNECEDOR,
+  AGUARDANDO_TRANSPORTE,
+  AGUARDANDO_PECA,
+  AGUARDANDO_APROVACAO,
+  AGUARDANDO_RETORNO,
+  APROVADO,
+  REPROVADO,
+  RESOLVIDO,
+  CANCELADO,
+  CONCLUIDO,
 }
