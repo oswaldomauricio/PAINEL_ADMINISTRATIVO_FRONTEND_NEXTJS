@@ -8,6 +8,7 @@ import {
   formatToDDMMYYYYHHMM,
   getDiasEmAbertoColor,
   getStatusColor,
+  truncateName,
 } from "@/lib/utils"
 
 import { Badge } from "@/components/ui/badge"
@@ -65,7 +66,7 @@ export default function BasicTableGarantia({ data }: BasicTableGarantiaProps) {
                   </TableCell>
                   <TableCell className="text-center">{item.loja}</TableCell>
                   <TableCell className="text-center">
-                    {item.nome_cliente.toUpperCase()}
+                    {truncateName(item.nome_cliente.toUpperCase(), 50)}
                   </TableCell>
                   <TableCell className="text-center">
                     {item.fornecedor.toUpperCase()}

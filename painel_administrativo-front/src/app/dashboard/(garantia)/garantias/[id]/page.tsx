@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { Files } from "@/app/service/FileService"
+import { TicketStatusService } from "@/app/service/TicketStatusService"
 import { TicketGarantia } from "@/app/service/TicketsGarantiaService"
 import { toast } from "sonner"
 import {
@@ -13,14 +14,17 @@ import {
   Clock,
   FileText,
   Package,
+  Printer,
   Store,
   User,
 } from "lucide-react"
 
 import type { Attachment } from "@/app/components/file-download"
 import type { garantiasType } from "@/app/dashboard/types/types"
+import type { Roles } from "@/types/roles"
+import { StatusTicket } from "@/app/dashboard/types/types"
 
-import { formatToDDMMYYYYHHMM, getStatusColor } from "@/lib/utils"
+import { formatToDDMMYYYYHHMM, getStatusColor, handlePrint } from "@/lib/utils"
 
 import { useApi } from "@/hooks/use-api"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -37,11 +41,11 @@ import { RichTextEditor } from "@/app/components/rich-text-editor"
 import { Badge } from "@/app/components/ui/badge"
 import { Button } from "@/app/components/ui/button"
 
-const currentUserRole = "ADMIN_GUARANTEE"
-
 const ticketGarantiaService = new TicketGarantia()
 
 const fileService = new Files()
+
+const ticketStatusService = new TicketStatusService()
 
 export default function TicketPage() {
   const params = useParams()
@@ -49,7 +53,7 @@ export default function TicketPage() {
   const id = ticketId
   const router = useRouter()
 
-  const { apiCall, token } = useApi()
+  const { apiCall, token, user } = useApi()
 
   const [ticket, setTicket] = useState<garantiasType>()
   const [newStatus, setNewStatus] = useState(ticket?.status || "")
@@ -57,6 +61,20 @@ export default function TicketPage() {
   const [isUploading, setIsUploading] = useState(false)
   const [attachments, setAttachments] = useState<Attachment[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const statuses = Object.values(StatusTicket).filter(
+    (value) => typeof value === "string"
+  )
+
+  const statusTerminais = [
+    StatusTicket.CANCELADO,
+    StatusTicket.REPROVADO,
+    StatusTicket.CONCLUIDO,
+    StatusTicket.RESOLVIDO,
+  ]
+
+  const isTicketLocked = ticket
+    ? statusTerminais.includes(ticket.status as unknown as StatusTicket)
+    : false
 
   const fetchData = useCallback(async () => {
     if (!token || !id) {
@@ -112,7 +130,7 @@ export default function TicketPage() {
 
       const result = await fileService.uploadMultipleFiles(
         apiCall,
-        ticketId + 100,
+        ticketId + 100, // Adiciona 100 para diferenciar dos tickets de garantia
         renamedFiles
       )
 
@@ -127,6 +145,49 @@ export default function TicketPage() {
       toast.error(`Falha no upload, tente novamente!`)
     } finally {
       setIsUploading(false)
+    }
+  }
+
+  const handleStatusUpdate = async () => {
+    // Verificações para garantir que os dados necessários existem
+    if (!ticket || !user?.id) {
+      toast.error("Dados do ticket ou do usuário não encontrados.")
+      return
+    }
+
+    if (!statusUpdate.trim()) {
+      toast.warning("A mensagem de atualização não pode estar vazia.")
+      return
+    }
+
+    // Monta o payload para a API
+    const data = {
+      ticketId: ticket.id,
+      ticketTipo: "GARANTIA" as const,
+      status: newStatus as unknown as StatusTicket,
+      idUser: user.id,
+      mensagem: statusUpdate,
+    }
+
+    console.log("Dados para atualização de status:", data)
+
+    toast.info("Atualizando status do ticket...")
+
+    try {
+      // Chama o método do serviço
+      const result = await ticketStatusService.atualizarStatus(apiCall, data)
+      console.log("Resultado da atualização de status:", result)
+
+      if (result) {
+        // Limpa o campo de mensagem
+        setStatusUpdate("")
+        // Recarrega os dados da página para refletir a mudança
+        await fetchData()
+      }
+    } catch (error) {
+      // O toast de erro já é tratado dentro do serviço,
+      // mas você pode adicionar lógica extra aqui se precisar.
+      console.error("Falha ao atualizar o status no componente:", error)
     }
   }
 
@@ -161,24 +222,6 @@ export default function TicketPage() {
     )
   }
 
-  // const handleStatusUpdate = () => {
-  //   if (statusUpdate.trim()) {
-  //     // In real app, this would make an API call
-  //     console.log("Status update:", {
-  //       status: newStatus,
-  //       message: statusUpdate,
-  //     })
-  //     setStatusUpdate("")
-  //     // Update ticket status
-  //     mockTicketData[ticketId as keyof typeof mockTicketData] = {
-  //       ...ticket,
-  //       status: newStatus,
-  //     }
-  //   }
-  // }
-
-  const statuses = ["NOVO", "PENDENTE", "RESOLVIDO", "CANCELADO"]
-
   return (
     <div className="container py-4">
       <div className="grid grid-cols-2 grid-rows-[auto_auto_auto_1fr] gap-y-2">
@@ -188,15 +231,25 @@ export default function TicketPage() {
             <span>Ticket de garantia - {ticketId.split("-")} </span>
           </h1>
           <div className="flex flex-row items-start justify-between gap-8 py-4">
-            <Button variant={"link"} className="flex items-center gap-2">
-              <Link
-                href="/dashboard/garantias"
-                className="gap-2 flex items-center flex-row"
+            <div className="flex items-center gap-8">
+              <Button variant={"link"} className="flex items-center gap-8">
+                <Link
+                  href="/dashboard/garantias"
+                  className="gap-2 flex items-center flex-row"
+                >
+                  <ChevronLeft />
+                  <span>Voltar</span>
+                </Link>
+              </Button>
+              <Button
+                onClick={handlePrint}
+                variant="outline"
+                className="flex items-center gap-2 print:hidden"
               >
-                <ChevronLeft />
-                <span>Voltar</span>
-              </Link>
-            </Button>
+                <Printer size={18} />
+                Imprimir / PDF
+              </Button>
+            </div>
 
             <Badge
               className={`${getStatusColor(ticket.status.toString())} text-lg px-4 py-2`}
@@ -323,67 +376,81 @@ export default function TicketPage() {
               </Card>
               {/* Conversation History */}
               <ConversationHistory
+                tipo_ticket="GARANTIA"
                 ticketId={ticket.id.toString()}
-                userRole={currentUserRole}
+                userRole={user?.role as Roles}
               />
-              {/* File Downloads */}
-              <FileDownload
-                onFileRemove={() => {
-                  console.log("não é possivel excluir")
-                }}
-                attachments={attachments}
-                onFilesAdd={handleFilesAdd}
-                isUploading={isUploading} // <-- NOVO: Passando o estado de carregamento
-              />
+              <div className="print:hidden">
+                <FileDownload
+                  onFileRemove={() => console.log("não é possivel excluir")}
+                  attachments={attachments}
+                  onFilesAdd={handleFilesAdd}
+                  isUploading={isUploading}
+                />
+              </div>
             </div>
 
             {/* Right Column - Status Update */}
             <div className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Atualização de status</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4 p-8">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Novo Status</label>
-                    <Select
-                      value={newStatus.toString()}
-                      onValueChange={setNewStatus}
+              {isTicketLocked ? (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Ticket Finalizado</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-8">
+                    <p className="text-sm text-gray-600">
+                      Este ticket não pode mais ser alterado pois seu status
+                      atual é {ticket.status}.
+                    </p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card className="print:hidden">
+                  <CardHeader>
+                    <CardTitle>Atualização de status</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4 p-8">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Novo Status</label>
+                      <Select
+                        value={newStatus.toString()}
+                        onValueChange={setNewStatus}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {statuses.map((status) => (
+                            <SelectItem key={status} value={status.toString()}>
+                              {status}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">
+                        Atualizar mensagem
+                      </label>
+                      <RichTextEditor
+                        value={statusUpdate}
+                        onChange={setStatusUpdate}
+                      />
+                    </div>
+
+                    <Button
+                      onClick={handleStatusUpdate}
+                      className="w-full"
+                      disabled={
+                        !statusUpdate.trim() || newStatus === ticket.status
+                      }
                     >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {statuses.map((status) => (
-                          <SelectItem key={status} value={status}>
-                            {status}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">
-                      Atualizar mensagem
-                    </label>
-                    <RichTextEditor
-                      value={statusUpdate}
-                      onChange={setStatusUpdate}
-                    />
-                  </div>
-
-                  <Button
-                    // onClick={handleStatusUpdate}
-                    className="w-full"
-                    disabled={
-                      !statusUpdate.trim() || newStatus === ticket.status
-                    }
-                  >
-                    Atualizar status
-                  </Button>
-                </CardContent>
-              </Card>
+                      Atualizar status
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </div>
         </div>

@@ -1,11 +1,15 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { TicketGarantia } from "@/app/service/TicketsGarantiaService"
 import { toast } from "sonner"
 import { Plus, Search, Wrench } from "lucide-react"
 
+import type { Roles } from "@/types/roles"
 import type { CriarGarantiaDTO, TicketPage } from "../../types/types"
+
+import { hasPermission } from "@/lib/permissions"
 
 import { useApi } from "@/hooks/use-api"
 import { useStore } from "@/contexts/lojaContext"
@@ -20,12 +24,12 @@ import SelectLojas from "@/app/components/ui/select-lojas"
 const ticketGarantiaService = new TicketGarantia()
 
 export default function GarantiaPage() {
+  const router = useRouter()
   const [search, setSearch] = useState("")
   const [isNewRequestOpen, setIsNewRequestOpen] = useState(false)
   const { store } = useStore()
-  const { apiCall, token } = useApi()
+  const { apiCall, token, user } = useApi()
 
-  // paginação
   const [page, setPage] = useState(0)
   const [size] = useState(20)
   const [ticketPage, setTicketPage] = useState<TicketPage>({
@@ -70,6 +74,7 @@ export default function GarantiaPage() {
           content: [novoTicket, ...prev.content],
         }))
         setIsNewRequestOpen(false)
+        router.push(`/dashboard/garantias/${novoTicket.id}`)
       }
     } catch (error) {
       toast.error("Erro ao criar ticket:")
@@ -101,13 +106,16 @@ export default function GarantiaPage() {
             <p className="text-lg font-semibold py-1">
               Relatório de solicitações de Garantias
             </p>
-            <Button
-              onClick={() => setIsNewRequestOpen(true)}
-              className="flex items-center gap-2 flex-row"
-            >
-              <Plus className="h-4 w-4" />
-              Nova solicitação
-            </Button>
+            {user?.role &&
+              hasPermission(user.role as Roles, "create:ticket") && (
+                <Button
+                  onClick={() => setIsNewRequestOpen(true)}
+                  className="flex items-center gap-2 flex-row"
+                >
+                  <Plus className="h-4 w-4" />
+                  Nova solicitação
+                </Button>
+              )}
           </div>
         </div>
 
