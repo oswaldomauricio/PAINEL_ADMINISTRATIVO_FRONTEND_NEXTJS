@@ -15,8 +15,10 @@ const handler = NextAuth({
           return null
         }
 
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL
+
         try {
-          const response = await fetch("http://localhost:8080/v1/login", {
+          const response = await fetch(`${baseUrl}/v1/login`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",

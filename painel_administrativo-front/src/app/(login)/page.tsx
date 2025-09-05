@@ -41,24 +41,16 @@ export default function LoginPage() {
       })
 
       if (result?.error) {
-        // Diferentes tipos de erro baseados na resposta da API
         if (result.error === "CredentialsSignin") {
           setError("Credenciais inválidas. Verifique seu login e senha.")
         } else {
           setError("Erro ao fazer login. Tente novamente.")
         }
       } else if (result?.ok) {
-        // Verificar se a sessão foi criada com sucesso
         const session = await getSession()
         if (session) {
-          console.log("Login realizado com sucesso:", {
-            nome: session.user?.name,
-            role: session.user.role,
-            id: session.user.id,
-          })
           router.push("/dashboard")
         }
-        console.log("sessao" + session)
       }
     } catch (err) {
       console.error("Erro no processo de login:", err)
@@ -69,13 +61,15 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="container min-h-screen bg-gray-50 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6 w-dvw">
       <Card className="w-full max-w-md p-6">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold text-gray-900">
             Login
           </CardTitle>
-          <p className="text-gray-600 mt-2">Acesse o sistema de garantias</p>
+          <p className="text-gray-600 mt-2">
+            Painel Administrativo - Norte Auto Peças
+          </p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -100,7 +94,6 @@ export default function LoginPage() {
               )}
             </div>
 
-            {/* Password Field */}
             <div className="space-y-2">
               <Label htmlFor="password">Senha</Label>
               <div className="relative">
@@ -136,7 +129,6 @@ export default function LoginPage() {
               )}
             </div>
 
-            {/* Error Alert */}
             {error && (
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
@@ -144,8 +136,11 @@ export default function LoginPage() {
               </Alert>
             )}
 
-            {/* Submit Button */}
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button
+              type="submit"
+              className="w-full my-4 bg-blue-800 hover:bg-blue-950"
+              disabled={isLoading}
+            >
               {isLoading ? (
                 <div className="flex items-center gap-2">
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
@@ -159,15 +154,6 @@ export default function LoginPage() {
               )}
             </Button>
           </form>
-
-          {/* Debug info - remover em produção */}
-          <div className="mt-4 p-3 bg-gray-100 rounded text-xs text-gray-600">
-            <p>
-              <strong>Para teste:</strong>
-            </p>
-            <p>Use as credenciais válidas da sua API</p>
-            <p>Em caso de erro 403, verifique login/senha</p>
-          </div>
         </CardContent>
       </Card>
     </div>
