@@ -1,12 +1,24 @@
 "use client"
 
 import { useState } from "react"
+import { useSession } from "next-auth/react"
+import { toast } from "sonner"
 import { Package, Plus } from "lucide-react"
 
 import type React from "react"
+import type {
+  CriarDivergenciaDTO,
+  ProductDivergence,
+} from "../dashboard/types/types"
 
-import { formatToDDMMYYYY } from "@/lib/utils"
+import {
+  validateCpfCnpj,
+  validateDescricao,
+  validateNota,
+  validateProdutosDivergencia,
+} from "@/lib/utils"
 
+import { useStore } from "@/contexts/lojaContext"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -17,76 +29,87 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { RichTextEditor } from "@/app/components//rich-text-editor"
-import { FileUpload } from "@/app/components/file-upload"
 import { ProductInput } from "@/app/components/product-input-divergence"
+import SelectLojas from "./ui/select-lojas"
 
 interface NewRequestModalProps {
   isOpen: boolean
   onClose: () => void
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onSubmit: (data: any) => void
+  onSubmit: (data: CriarDivergenciaDTO) => void
 }
-
-const stores = ["101", "102", "103", "104"]
 
 export function NewRequestModalDivergence({
   isOpen,
   onClose,
   onSubmit,
 }: NewRequestModalProps) {
-  const [formData, setFormData] = useState({
-    store: "",
-    supplier: "",
-    requestDate: Date.now(),
-    supplierDocument: "",
-    description: "",
-    products: [{ code: "", quantity: "", type: "", EntryNote: "" }],
-    files: [] as File[],
-  })
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    onSubmit(formData)
-    // Reset form
-    setFormData({
-      store: "",
-      supplier: "",
-      requestDate: Date.now(),
-      supplierDocument: "",
-      description: "",
-      products: [{ code: "", quantity: "", type: "", EntryNote: "" }],
-      files: [],
-    })
-    console.log(formatToDDMMYYYY(formData.requestDate))
-  }
+  const { store } = useStore()
+  const { data: session } = useSession()
+  const [fornecedor, setFornecedor] = useState("")
+  const [nota, setNota] = useState("")
+  const [cpfCnpj, setCpfCnpj] = useState("")
+  const [descricao, setDescricao] = useState("")
+  const [produtos, setProdutos] = useState<ProductDivergence[]>([
+    { codigo_produto: "", quantidade: 0, tipo_divergencia: "" },
+  ])
 
   const addProduct = () => {
-    setFormData({
-      ...formData,
-      products: [
-        ...formData.products,
-        { code: "", quantity: "", type: "", EntryNote: "" },
-      ],
-    })
+    setProdutos([
+      ...produtos,
+      { codigo_produto: "", quantidade: 0, tipo_divergencia: "" },
+    ])
   }
 
   const removeProduct = (index: number) => {
-    const newProducts = formData.products.filter((_, i) => i !== index)
-    setFormData({ ...formData, products: newProducts })
+    setProdutos(produtos.filter((_, i) => i !== index))
   }
 
-  const updateProduct = (index: number, field: string, value: string) => {
-    const newProducts = [...formData.products]
-    newProducts[index] = { ...newProducts[index], [field]: value }
-    setFormData({ ...formData, products: newProducts })
+  const updateProduct = (
+    index: number,
+    field: keyof ProductDivergence,
+    value: string | number
+  ) => {
+    setProdutos((prev) =>
+      prev.map((item, i) => (i === index ? { ...item, [field]: value } : item))
+    )
+  }
+
+  const isFormValid = () => {
+    return (
+      (store &&
+        fornecedor.trim().length > 0 &&
+        nota.trim().length >= 1 &&
+        nota.trim().length <= 9 &&
+        cpfCnpj.length === 11) ||
+      (cpfCnpj.length === 14 &&
+        produtos.length > 0 &&
+        produtos.every(
+          (p) =>
+            p.codigo_produto.trim().length > 0 &&
+            p.quantidade > 0 &&
+            p.tipo_divergencia.toString().length > 0
+        ))
+    )
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (!store) return
+
+    const payload: CriarDivergenciaDTO = {
+      loja: Number(store),
+      fornecedor,
+      cpf_cnpj: cpfCnpj,
+      nota,
+      descricao,
+      id_usuario: Number(session?.user.id),
+      produtos,
+    }
+
+    onSubmit(payload)
+    toast.success("Ticket criado com sucesso!")
   }
 
   return (
@@ -104,54 +127,58 @@ export function NewRequestModalDivergence({
               <CardTitle className="text-lg">Informações</CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
-              <div className="space-y-4">
-                <Label htmlFor="store">Loja *</Label>
-                <Select
-                  value={formData.store}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, store: value })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecionar a loja" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {stores.map((store) => (
-                      <SelectItem key={store} value={store}>
-                        {store}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              <SelectLojas title="lojas *" />
 
               <div className="space-y-2">
                 <Label htmlFor="supplier">Fornecedor *</Label>
                 <Input
                   id="supplier"
-                  value={formData.supplier}
-                  onChange={(e) =>
-                    setFormData({ ...formData, supplier: e.target.value })
-                  }
+                  value={fornecedor}
+                  onChange={(e) => setFornecedor(e.target.value)}
                   placeholder="Nome do fornecedor"
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="supplierDocument">CNPJ do fornecedor *</Label>
+                <Label htmlFor="salesNote">Nota de entrada *</Label>
                 <Input
-                  id="supplierDocument"
-                  value={formData.supplierDocument}
+                  id="salesNote"
+                  value={nota}
+                  onChange={(e) => setNota(e.target.value)}
+                  placeholder="Nota"
+                  required
+                  minLength={1}
+                  maxLength={9}
+                />
+                {validateNota(nota) && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {validateNota(nota)}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="customerDocument">
+                  CPF/CNPJ do fornecedor *
+                </Label>
+                <Input
+                  id="customerDocument"
+                  value={cpfCnpj}
                   onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      supplierDocument: e.target.value,
-                    })
+                    setCpfCnpj(e.target.value.replace(/\D/g, ""))
                   }
                   placeholder="CPF / CNPJ"
                   required
+                  minLength={14}
+                  maxLength={14}
+                  pattern="^[0-9]{11}$|^[0-9]{14}$"
                 />
+                {validateCpfCnpj(cpfCnpj) && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {validateCpfCnpj(cpfCnpj)}
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -173,17 +200,27 @@ export function NewRequestModalDivergence({
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {formData.products.map((product, index) => (
+              {produtos.map((product, index) => (
                 <ProductInput
                   key={index}
                   product={product}
                   onUpdate={(field, value) =>
-                    updateProduct(index, field, value)
+                    updateProduct(
+                      index,
+                      field as keyof ProductDivergence,
+                      value
+                    )
                   }
                   onRemove={() => removeProduct(index)}
-                  canRemove={formData.products.length > 1}
+                  canRemove={produtos.length > 1}
                 />
               ))}
+
+              {validateProdutosDivergencia(produtos) && (
+                <p className="text-red-500 text-xs mt-1">
+                  {validateProdutosDivergencia(produtos)}
+                </p>
+              )}
             </CardContent>
           </Card>
 
@@ -193,25 +230,12 @@ export function NewRequestModalDivergence({
               <CardTitle className="text-lg">Descrição</CardTitle>
             </CardHeader>
             <CardContent>
-              <RichTextEditor
-                value={formData.description}
-                onChange={(value) =>
-                  setFormData({ ...formData, description: value })
-                }
-              />
-            </CardContent>
-          </Card>
-
-          {/* File Upload */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Anexar arquivos</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <FileUpload
-                files={formData.files}
-                onFilesChange={(files) => setFormData({ ...formData, files })}
-              />
+              <RichTextEditor value={descricao} onChange={setDescricao} />
+              {validateDescricao(descricao) && (
+                <p className="text-red-500 text-xs mt-1">
+                  {validateDescricao(descricao)}
+                </p>
+              )}
             </CardContent>
           </Card>
 
@@ -220,7 +244,14 @@ export function NewRequestModalDivergence({
             <Button type="button" variant="outline" onClick={onClose}>
               Cancelar
             </Button>
-            <Button type="submit">Enviar solicitação</Button>
+
+            {isFormValid() ? (
+              <Button type="submit">Enviar solicitação</Button>
+            ) : (
+              <p className="text-red-500 text-sm flex items-center">
+                Preencha todos os campos obrigatórios corretamente para enviar.
+              </p>
+            )}
           </div>
         </form>
       </DialogContent>

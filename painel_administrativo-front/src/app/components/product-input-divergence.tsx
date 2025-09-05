@@ -2,18 +2,19 @@
 
 import { Trash2 } from "lucide-react"
 
+import type { ProductDivergence } from "../dashboard/types/types"
+
 import { Button } from "@/app/components/ui/button"
 import { Input } from "@/app/components/ui/input"
 import { Label } from "@/app/components/ui/label"
 
 interface ProductInputProps {
   product: {
-    code: string
-    quantity: string
-    type: string
-    EntryNote: string
+    codigo_produto: string
+    quantidade: number
+    tipo_divergencia: "FALTA" | "SOBRA" | "AVARIA" | "OUTROS" | ""
   }
-  onUpdate: (field: string, value: string) => void
+  onUpdate: (field: keyof ProductDivergence, value: string | number) => void
   onRemove: () => void
   canRemove: boolean
 }
@@ -30,8 +31,8 @@ export function ProductInput({
         <Label htmlFor="productCode">Codigo do produto</Label>
         <Input
           id="productCode"
-          value={product.code}
-          onChange={(e) => onUpdate("code", e.target.value)}
+          value={product.codigo_produto}
+          onChange={(e) => onUpdate("codigo_produto", e.target.value)}
           placeholder="Digite o codigo..."
           required
         />
@@ -42,8 +43,8 @@ export function ProductInput({
         <Input
           id="quantity"
           type="number"
-          value={product.quantity}
-          onChange={(e) => onUpdate("quantity", e.target.value)}
+          value={product.quantidade}
+          onChange={(e) => onUpdate("quantidade", Number(e.target.value))}
           placeholder="Quantidade..."
           required
         />
@@ -53,8 +54,8 @@ export function ProductInput({
         <Label htmlFor="tipo-divergencia">Tipo de divergência</Label>
         <select
           id="type"
-          value={product.type}
-          onChange={(e) => onUpdate("type", e.target.value)}
+          value={product.tipo_divergencia}
+          onChange={(e) => onUpdate("tipo_divergencia", e.target.value)}
           className="border rounded px-3 py-2 w-full bg-white text-neutral-500 text-sm"
           required
         >
@@ -62,21 +63,8 @@ export function ProductInput({
           <option value="SOBRA">SOBRA</option>
           <option value="FALTA">FALTA</option>
           <option value="AVARIA">AVARIA</option>
-          <option value="OUTRO">OUTROS</option>
+          <option value="OUTROS">OUTROS</option>
         </select>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="value">Nota de entrada / CTE</Label>
-        <Input
-          id="EntryNote"
-          type="number"
-          step="0.01"
-          value={product.EntryNote}
-          onChange={(e) => onUpdate("EntryNote", e.target.value)}
-          placeholder="Número da nota"
-          required
-        />
       </div>
 
       <div className="flex items-end">

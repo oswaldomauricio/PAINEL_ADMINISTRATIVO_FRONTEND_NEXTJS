@@ -1,8 +1,11 @@
 "use client"
 
-import { use, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
+import { Files } from "@/app/service/FileService"
+import { TicketDivergencia } from "@/app/service/TicketsDivergenciaService"
+import { toast } from "sonner"
 import {
   ArrowLeft,
   Calendar,
@@ -11,15 +14,18 @@ import {
   FileText,
   Package,
   Store,
-  // User,
 } from "lucide-react"
 
-import type { FileDownloadProps } from "@/app/components/file-download"
+import type { Attachment } from "@/app/components/file-download"
 import type {
   ProductDivergence,
   divergenciasType,
 } from "@/app/dashboard/types/types"
+import type { Roles } from "@/types/roles"
 
+import { getStatusColor } from "@/lib/utils"
+
+import { useApi } from "@/hooks/use-api"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Select,
@@ -34,37 +40,109 @@ import { RichTextEditor } from "@/app/components/rich-text-editor"
 import { Badge } from "@/app/components/ui/badge"
 import { Button } from "@/app/components/ui/button"
 
-// Mock user role - in real app this would come from auth context
-const currentUserRole = "ADMIN_GUARANTEE" // or "USER"
+const ticketDivergenciaService = new TicketDivergencia()
+const fileService = new Files()
 
-export default function TicketPage({
-  params,
-}: {
-  params: Promise<{ id: string }>
-}) {
-  const { id } = use(params)
-  const ticketId = id
+export default function TicketPage() {
+  const params = useParams()
+  const ticketId = params.id as string
+  const id = ticketId
   const router = useRouter()
 
+  const { apiCall, token, user } = useApi()
+
   const [ticket, setTicket] = useState<divergenciasType>()
-  const [arquivos, setArquivos] = useState<FileDownloadProps>()
   const [newStatus, setNewStatus] = useState(ticket?.status || "")
   const [statusUpdate, setStatusUpdate] = useState("")
+  const [isUploading, setIsUploading] = useState(false)
+  const [attachments, setAttachments] = useState<Attachment[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "novo":
-        return "bg-red-100 text-red-800"
-      case "pendente":
-        return "bg-yellow-100 text-yellow-800"
-      case "resolvido":
-        return "bg-green-100 text-green-800"
-      default:
-        return "bg-gray-100 text-gray-800"
+  const fetchData = useCallback(async () => {
+    if (!token || !id) {
+      setIsLoading(false)
+      return
+    }
+    try {
+      const ticketResult = await ticketDivergenciaService.listarTicketsPorId(
+        apiCall,
+        id
+      )
+      setTicket(ticketResult || undefined)
+      if (ticketResult) {
+        setNewStatus(ticketResult.status || "")
+      }
+
+      const arquivosResult = await fileService.listarArquivosPorTicket(
+        apiCall,
+        id + 200 // Adiciona 200 para diferenciar dos tickets de garantia
+      )
+      setAttachments(arquivosResult)
+    } catch (error) {
+      console.error("Erro ao buscar dados do ticket ou arquivos:", error)
+      toast.error("Falha ao carregar dados do ticket.")
+    } finally {
+      setIsLoading(false)
+    }
+  }, [token, apiCall, id])
+
+  useEffect(() => {
+    fetchData()
+  }, [fetchData])
+
+  const handleFilesAdd = async (files: File[]) => {
+    if (!files || files.length === 0) {
+      toast.warning("Nenhum arquivo selecionado.")
+      return
+    }
+
+    setIsUploading(true)
+    toast.info("Iniciando upload dos arquivos...")
+
+    try {
+      const renamedFiles = files.map((file) => {
+        const fileExtension = file.name.split(".").pop()
+        const fileNameWithoutExt = file.name.substring(
+          0,
+          file.name.lastIndexOf(".")
+        )
+        const uniqueName = `${fileNameWithoutExt}_${Date.now()}.${fileExtension}`
+        return new File([file], uniqueName, { type: file.type })
+      })
+
+      const result = await fileService.uploadMultipleFiles(
+        apiCall,
+        ticketId + 100,
+        renamedFiles
+      )
+
+      if (result) {
+        toast.success(`${files.length} arquivo(s) enviado(s) com sucesso!`)
+        await fetchData()
+      } else {
+        throw new Error("A resposta do upload foi nula.")
+      }
+    } catch (error) {
+      console.error("Falha no upload:", error)
+      toast.error(`Falha no upload, tente novamente!`)
+    } finally {
+      setIsUploading(false)
     }
   }
 
-  // If ticket not found, render 404-like UI
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div
+          className="w-16 h-16 border-4 border-dashed rounded-full animate-spin border-blue-500"
+          role="status"
+        >
+          <span className="sr-only">Carregando...</span>
+        </div>
+      </div>
+    )
+  }
+
   if (!ticket) {
     return (
       <div className="min-h-screen bg-gray-50 p-6">
@@ -73,7 +151,10 @@ export default function TicketPage({
             <h1 className="text-2xl font-bold text-gray-900">
               Ticket não localizado!
             </h1>
-            <Button onClick={() => router.push("/")} className="mt-4">
+            <Button
+              onClick={() => router.push("/dashboard/divergencias")}
+              className="mt-4"
+            >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Voltar para a tela inicial
             </Button>
@@ -99,14 +180,6 @@ export default function TicketPage({
   //   }
   // }
 
-  const handleFilesAdd = (files: File[]) => {
-    console.log(
-      "New files added:",
-      files.map((f) => f.name)
-    )
-    // In real app, this would upload files to server
-  }
-
   const statuses = ["NOVO", "PENDENTE", "RESOLVIDO", "CANCELADO"]
 
   return (
@@ -120,7 +193,7 @@ export default function TicketPage({
           <div className="flex flex-row items-start justify-between gap-8 py-4">
             <Button variant={"link"} className="flex items-center gap-2">
               <Link
-                href="/divergencias"
+                href="/dashboard/divergencias"
                 className="gap-2 flex items-center flex-row"
               >
                 <ChevronLeft />
@@ -162,7 +235,7 @@ export default function TicketPage({
                         </p>
                         <p className="font-medium">
                           {new Date(
-                            ticket.dataSolicitacao
+                            ticket.data_solicitacao
                           ).toLocaleDateString()}
                         </p>
                       </div>
@@ -172,7 +245,7 @@ export default function TicketPage({
                       <div>
                         <p className="text-sm text-gray-500">Dias em aberto</p>
                         <p className="font-medium">
-                          {ticket.diasEmAberto} dias
+                          {ticket.dias_em_aberto} dias
                         </p>
                       </div>
                     </div>
@@ -225,11 +298,10 @@ export default function TicketPage({
                             <p className="text-sm text-gray-500">
                               Qtd: {product.quantidade}
                             </p>
-                            <p className="text-sm text-gray-500">
-                              Tipo de divergência: {product.tipo}
-                            </p>
                           </div>
-                          <p className="font-medium">R$ {product.valor}</p>
+                          <p className="font-medium">
+                            {product.tipo_divergencia}
+                          </p>
                         </div>
                       )
                     )}
@@ -238,15 +310,18 @@ export default function TicketPage({
               </Card>
               {/* Conversation History */}
               <ConversationHistory
+                tipo_ticket="DIVERGENCIA"
                 ticketId={ticket.id.toString()}
-                userRole={currentUserRole}
+                userRole={user?.role as Roles}
               />
-              {/* File Downloads */}
-              <FileDownload
-                attachments={arquivos?.attachments || []}
-                onFilesAdd={handleFilesAdd}
-                // canUpload={currentUserRole === "ADMIN_GUARANTEE"}
-              />
+              <div className="print:hidden">
+                <FileDownload
+                  onFileRemove={() => console.log("não é possivel excluir")}
+                  attachments={attachments}
+                  onFilesAdd={handleFilesAdd}
+                  isUploading={isUploading}
+                />
+              </div>
             </div>
 
             {/* Right Column - Status Update */}
