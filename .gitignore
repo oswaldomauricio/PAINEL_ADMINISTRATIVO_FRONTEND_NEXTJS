@@ -35,3 +35,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+painel_administrativo-front/dockerfile
+.dockerfile
+.Dockerfile
+dockerfile
+/dockerfile
