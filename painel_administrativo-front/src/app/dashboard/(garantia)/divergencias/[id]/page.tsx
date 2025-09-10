@@ -145,7 +145,7 @@ export default function TicketPage() {
 
       const result = await fileService.uploadMultipleFiles(
         apiCall,
-        ticketId + 100,
+        ticketId + 200, //tickets de divergencia começam em 200
         renamedFiles
       )
 
