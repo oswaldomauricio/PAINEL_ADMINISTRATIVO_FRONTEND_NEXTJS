@@ -17,6 +17,7 @@ export function useApi() {
 
       const baseUrl = process.env.NEXT_PUBLIC_API_URL
       const url = `${baseUrl}${endpoint}`
+      console.log("Chamada API para:", url)
 
       try {
         const response = await fetch(url, {
@@ -37,7 +38,16 @@ export function useApi() {
           throw new Error(`Erro na API: ${response.status}`)
         }
 
-        return response.json()
+        // Tenta ler o corpo de forma segura
+        const text = await response.text()
+        if (!text) return null // Se o corpo estiver vazio, retorna null
+
+        try {
+          return JSON.parse(text)
+        } catch {
+          console.warn("Resposta não é JSON válido, retornando texto bruto")
+          return text
+        }
       } catch (err: unknown) {
         if (err instanceof Error) {
           if (err.name === "TypeError" && err.message === "Failed to fetch") {
@@ -57,5 +67,6 @@ export function useApi() {
     },
     [session?.user?.apiToken]
   )
+
   return { apiCall, token: session?.user?.apiToken, user: session?.user }
 }
