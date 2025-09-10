@@ -90,7 +90,10 @@ export default function BasicTableGarantia({ data }: BasicTableGarantiaProps) {
                     }
                   >
                     <Badge className={getStatusColor(item.status.toString())}>
-                      {item.status.toString().toUpperCase()}
+                      {item.status
+                        .toString()
+                        .toUpperCase()
+                        .replaceAll("_", " ")}
                     </Badge>
                   </TableCell>
                 </TableRow>

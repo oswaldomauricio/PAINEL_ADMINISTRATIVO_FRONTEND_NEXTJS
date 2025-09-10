@@ -87,7 +87,10 @@ export default function BasicTableDivergencia({ data }: BasicTableProps) {
                     }
                   >
                     <Badge className={getStatusColor(item.status.toString())}>
-                      {item.status.toString().toUpperCase()}
+                      {item.status
+                        .toString()
+                        .toUpperCase()
+                        .replaceAll("_", " ")}
                     </Badge>
                   </TableCell>
                 </TableRow>
