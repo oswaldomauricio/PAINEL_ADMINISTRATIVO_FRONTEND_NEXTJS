@@ -246,7 +246,7 @@ export function FileDownload({
         {attachments.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             <File className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-            <p>Nenhum arquivo anexado a este tíquete.</p>
+            <p>Nenhum arquivo anexado a este ticket.</p>
             {canUpload && (
               <p className="text-sm mt-2">
                 Use a área acima para carregar arquivos.

@@ -20,12 +20,14 @@ interface ConversationHistoryProps {
   ticketId: string | number
   userRole: Roles
   tipo_ticket: "GARANTIA" | "DIVERGENCIA"
+  canReply?: boolean
 }
 
 export function ConversationHistory({
   ticketId,
   userRole,
   tipo_ticket,
+  canReply = true,
 }: ConversationHistoryProps) {
   const { apiCall, user } = useApi()
   const [newMessage, setNewMessage] = useState("")
@@ -173,40 +175,44 @@ export function ConversationHistory({
         </div>
 
         {/* New Message Form */}
-        <div className="border-t pt-4 space-y-4">
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium">Adicionar mensagem</label>
-              {hasPermission(
-                user?.role as Roles,
-                "read:internalTicketMensagem"
-              ) && (
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="internal"
-                    checked={isInternal}
-                    onChange={(e) => setIsInternal(e.target.checked)}
-                    className="rounded"
-                  />
-                  <label htmlFor="internal" className="text-sm text-gray-600">
-                    Mensagem interna
-                  </label>
-                </div>
-              )}
+        {canReply && (
+          <div className="border-t pt-4 space-y-4">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">
+                  Adicionar mensagem
+                </label>
+                {hasPermission(
+                  user?.role as Roles,
+                  "read:internalTicketMensagem"
+                ) && (
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="internal"
+                      checked={isInternal}
+                      onChange={(e) => setIsInternal(e.target.checked)}
+                      className="rounded"
+                    />
+                    <label htmlFor="internal" className="text-sm text-gray-600">
+                      Mensagem interna
+                    </label>
+                  </div>
+                )}
+              </div>
+
+              <RichTextEditor value={newMessage} onChange={setNewMessage} />
             </div>
 
-            <RichTextEditor value={newMessage} onChange={setNewMessage} />
+            <Button
+              onClick={handleSendMessage}
+              disabled={!newMessage.trim()}
+              className="w-full"
+            >
+              Enviar mensagem
+            </Button>
           </div>
-
-          <Button
-            onClick={handleSendMessage}
-            disabled={!newMessage.trim()}
-            className="w-full"
-          >
-            Enviar mensagem
-          </Button>
-        </div>
+        )}
       </CardContent>
     </Card>
   )
