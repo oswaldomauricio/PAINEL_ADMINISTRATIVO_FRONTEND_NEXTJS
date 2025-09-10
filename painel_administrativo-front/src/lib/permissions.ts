@@ -8,6 +8,7 @@ export const permissions: Record<Roles, Permissions[]> = {
     "create:ticket",
     "create:ticketMensagem",
     "read:internalTicketMensagem",
+    "update:ticketStatus",
   ],
   ROLE_USER: ["read:ticket", "create:ticketMensagem"],
 }
