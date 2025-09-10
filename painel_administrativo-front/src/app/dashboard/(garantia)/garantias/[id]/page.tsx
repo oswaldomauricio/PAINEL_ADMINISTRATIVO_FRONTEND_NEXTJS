@@ -11,6 +11,7 @@ import {
   ArrowLeft,
   Calendar,
   ChevronLeft,
+  ClipboardList,
   Clock,
   FileText,
   Package,
@@ -21,9 +22,11 @@ import {
 
 import type { Attachment } from "@/app/components/file-download"
 import type { garantiasType } from "@/app/dashboard/types/types"
+import type { StatusHandler } from "@/app/service/TicketStatusService"
 import type { Roles } from "@/types/roles"
-import { StatusTicket } from "@/app/dashboard/types/types"
+import { StatusTicketGarantia } from "@/app/dashboard/types/types"
 
+import { hasPermission } from "@/lib/permissions"
 import { formatToDDMMYYYYHHMM, getStatusColor, handlePrint } from "@/lib/utils"
 
 import { useApi } from "@/hooks/use-api"
@@ -61,19 +64,20 @@ export default function TicketPage() {
   const [isUploading, setIsUploading] = useState(false)
   const [attachments, setAttachments] = useState<Attachment[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const statuses = Object.values(StatusTicket).filter(
+  const [statusHistory, setStatusHistory] = useState<StatusHandler[]>([])
+  const statuses = Object.values(StatusTicketGarantia).filter(
     (value) => typeof value === "string"
   )
 
-  const statusTerminais = [
-    StatusTicket.CANCELADO,
-    StatusTicket.REPROVADO,
-    StatusTicket.CONCLUIDO,
-    StatusTicket.RESOLVIDO,
-  ]
+  const statusMap: Record<string, StatusTicketGarantia> = {
+    CANCELADO: StatusTicketGarantia.CANCELADO,
+    CONCLUIDO: StatusTicketGarantia.CONCLUIDO,
+  }
 
   const isTicketLocked = ticket
-    ? statusTerminais.includes(ticket.status as unknown as StatusTicket)
+    ? [StatusTicketGarantia.CANCELADO, StatusTicketGarantia.CONCLUIDO].includes(
+        statusMap[ticket.status as unknown as StatusTicketGarantia]
+      )
     : false
 
   const fetchData = useCallback(async () => {
@@ -96,6 +100,14 @@ export default function TicketPage() {
         id + 100
       )
       setAttachments(arquivosResult)
+
+      const historico = await ticketStatusService.listarStatusGarantia(
+        apiCall,
+        Number(id)
+      )
+      setStatusHistory(
+        historico ? (historico as unknown as StatusHandler[]) : []
+      )
     } catch (error) {
       console.error("Erro ao buscar dados do ticket ou arquivos:", error)
       toast.error("Falha ao carregar dados do ticket.")
@@ -149,7 +161,6 @@ export default function TicketPage() {
   }
 
   const handleStatusUpdate = async () => {
-    // Verificações para garantir que os dados necessários existem
     if (!ticket || !user?.id) {
       toast.error("Dados do ticket ou do usuário não encontrados.")
       return
@@ -160,33 +171,27 @@ export default function TicketPage() {
       return
     }
 
-    // Monta o payload para a API
     const data = {
       ticketId: ticket.id,
-      ticketTipo: "GARANTIA" as const,
-      status: newStatus as unknown as StatusTicket,
+      status: newStatus as unknown as StatusTicketGarantia,
       idUser: user.id,
       mensagem: statusUpdate,
     }
 
-    console.log("Dados para atualização de status:", data)
-
     toast.info("Atualizando status do ticket...")
 
     try {
-      // Chama o método do serviço
-      const result = await ticketStatusService.atualizarStatus(apiCall, data)
-      console.log("Resultado da atualização de status:", result)
+      const result = await ticketStatusService.atualizarStatusGarantia(
+        apiCall,
+        data
+      )
 
       if (result) {
-        // Limpa o campo de mensagem
         setStatusUpdate("")
-        // Recarrega os dados da página para refletir a mudança
         await fetchData()
       }
     } catch (error) {
-      // O toast de erro já é tratado dentro do serviço,
-      // mas você pode adicionar lógica extra aqui se precisar.
+      toast.error("Falha ao atualizar o status no componente:")
       console.error("Falha ao atualizar o status no componente:", error)
     }
   }
@@ -212,7 +217,10 @@ export default function TicketPage() {
             <h1 className="text-2xl font-bold text-gray-900">
               Ticket não localizado!
             </h1>
-            <Button onClick={() => router.push("/dashboard")} className="mt-4">
+            <Button
+              onClick={() => router.push("/dashboard/garantias")}
+              className="mt-4"
+            >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Voltar para a tela inicial
             </Button>
@@ -254,11 +262,20 @@ export default function TicketPage() {
             <Badge
               className={`${getStatusColor(ticket.status.toString())} text-lg px-4 py-2`}
             >
-              {ticket.status}
+              {ticket.status.toString().replaceAll("_", " ")}
             </Badge>
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left Column - Ticket Information */}
+
+          {/* Grid com colunas condicionais */}
+          <div
+            className={`grid grid-cols-1 gap-6 ${
+              user?.role &&
+              hasPermission(user.role as Roles, "update:ticketStatus")
+                ? "lg:grid-cols-3"
+                : "lg:grid-cols-2"
+            }`}
+          >
+            {/* Coluna esquerda */}
             <div className="lg:col-span-2 space-y-6">
               {/* Basic Information */}
               <Card>
@@ -323,6 +340,7 @@ export default function TicketPage() {
                   </div>
                 </CardContent>
               </Card>
+
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -343,7 +361,8 @@ export default function TicketPage() {
                   </div>
                 </CardContent>
               </Card>
-              {/* Products */}
+
+              {/* Produtos */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -374,84 +393,142 @@ export default function TicketPage() {
                   </div>
                 </CardContent>
               </Card>
-              {/* Conversation History */}
+
+              {/* Histórico de conversas */}
               <ConversationHistory
                 tipo_ticket="GARANTIA"
                 ticketId={ticket.id.toString()}
                 userRole={user?.role as Roles}
+                canReply={!isTicketLocked}
               />
+
               <div className="print:hidden">
                 <FileDownload
                   onFileRemove={() => console.log("não é possivel excluir")}
                   attachments={attachments}
+                  canUpload={!isTicketLocked}
                   onFilesAdd={handleFilesAdd}
                   isUploading={isUploading}
                 />
               </div>
+
+              {/* Histórico de status */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <ClipboardList className="h-5 w-5" />
+                    Histórico de status
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4 p-6">
+                    {statusHistory.length === 0 ? (
+                      <p className="text-sm text-gray-500">
+                        Nenhum histórico disponível.
+                      </p>
+                    ) : (
+                      statusHistory.map((hist, index) => (
+                        <div
+                          key={index}
+                          className="p-4 rounded-lg bg-gray-50 flex flex-col gap-2"
+                        >
+                          <div className="flex justify-between items-center">
+                            <span
+                              className={`font-semibold px-4 py-2 rounded-3xl ${getStatusColor(
+                                hist.statusNovo.toString()
+                              )}`}
+                            >
+                              {hist.statusNovo}
+                            </span>
+                            <span className="text-xs text-gray-500">
+                              {new Date(hist.dataAtualizacao).toLocaleString(
+                                "pt-BR"
+                              )}
+                            </span>
+                          </div>
+                          <p className="text-gray-800">{hist.mensagem}</p>
+                          <span className="text-xs text-gray-400">
+                            Alterado por: <strong>{hist.alteradoPor}</strong>
+                          </span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
             </div>
 
-            {/* Right Column - Status Update */}
-            <div className="space-y-6">
-              {isTicketLocked ? (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Ticket Finalizado</CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-8">
-                    <p className="text-sm text-gray-600">
-                      Este ticket não pode mais ser alterado pois seu status
-                      atual é {ticket.status}.
-                    </p>
-                  </CardContent>
-                </Card>
-              ) : (
-                <Card className="print:hidden">
-                  <CardHeader>
-                    <CardTitle>Atualização de status</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4 p-8">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Novo Status</label>
-                      <Select
-                        value={newStatus.toString()}
-                        onValueChange={setNewStatus}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {statuses.map((status) => (
-                            <SelectItem key={status} value={status.toString()}>
-                              {status}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+            {/* Coluna direita só aparece se tiver permissão */}
+            {user?.role &&
+              hasPermission(user.role as Roles, "update:ticketStatus") && (
+                <div className="space-y-6">
+                  {isTicketLocked ? (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Ticket Finalizado</CardTitle>
+                      </CardHeader>
+                      <CardContent className="p-8">
+                        <p className="text-sm text-gray-600">
+                          Este ticket não pode mais ser alterado pois seu status
+                          atual é{" "}
+                          {ticket.status.toString().replaceAll("_", " ")}.
+                        </p>
+                      </CardContent>
+                    </Card>
+                  ) : (
+                    <Card className="print:hidden">
+                      <CardHeader>
+                        <CardTitle>Atualização de status</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4 p-8">
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">
+                            Novo Status
+                          </label>
+                          <Select
+                            value={newStatus.toString()}
+                            onValueChange={setNewStatus}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {statuses.map((status) => (
+                                <SelectItem
+                                  key={status}
+                                  value={status.toString()}
+                                >
+                                  {status.replaceAll("_", " ")}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
 
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">
-                        Atualizar mensagem
-                      </label>
-                      <RichTextEditor
-                        value={statusUpdate}
-                        onChange={setStatusUpdate}
-                      />
-                    </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">
+                            Atualizar mensagem
+                          </label>
+                          <RichTextEditor
+                            value={statusUpdate}
+                            onChange={setStatusUpdate}
+                          />
+                        </div>
 
-                    <Button
-                      onClick={handleStatusUpdate}
-                      className="w-full"
-                      disabled={
-                        !statusUpdate.trim() || newStatus === ticket.status
-                      }
-                    >
-                      Atualizar status
-                    </Button>
-                  </CardContent>
-                </Card>
+                        <Button
+                          onClick={handleStatusUpdate}
+                          className="w-full"
+                          disabled={
+                            !statusUpdate.trim() || newStatus === ticket.status
+                          }
+                        >
+                          Atualizar status
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
               )}
-            </div>
           </div>
         </div>
       </div>

@@ -379,14 +379,16 @@ export const getStatusColor = (status: string) => {
       return "bg-yellow-100 text-yellow-800"
     case "resolvido":
       return "bg-green-100 text-green-800"
-    case "reprovado":
+    case "improcedente":
       return "bg-red-100 text-red-800"
+    case "em emissão de nota":
+      return "bg-green-100 text-green-800"
     case "cancelado":
       return "bg-red-100 text-red-800"
     case "concluido":
       return "bg-green-100 text-green-800"
     default:
-      return "bg-gray-100 text-gray-800"
+      return "bg-orange-100 text-orange-800"
   }
 }
 export const getDiasEmAbertoColor = (dias: number) => {

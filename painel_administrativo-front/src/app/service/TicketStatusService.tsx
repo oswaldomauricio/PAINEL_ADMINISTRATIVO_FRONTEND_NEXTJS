@@ -1,24 +1,25 @@
 import { toast } from "sonner"
 
-import type { StatusTicket } from "../dashboard/types/types"
+import type {
+  StatusTicketDivergencia,
+  StatusTicketGarantia,
+} from "../dashboard/types/types"
 
 type ApiCallFunction = <T>(url: string, options: RequestInit) => Promise<T>
 
-export interface StatusChange {
+export interface StatusHandler {
   ticketId: number
-  ticketTipo: "GARANTIA" | "DIVERGENCIA"
-  statusNovo: StatusTicket
+  statusNovo: StatusTicketGarantia | StatusTicketDivergencia
   alteradoPor: string
   mensagem: string
   dataAtualizacao: string
 }
 
-export interface CreateMensagem {
+export interface CreateNewStatus {
   ticketId: number
-  status: StatusTicket
-  idUser: number | string | undefined
+  status: StatusTicketGarantia | StatusTicketDivergencia
   mensagem: string
-  ticketTipo: "GARANTIA" | "DIVERGENCIA"
+  idUser: number | string | undefined
 }
 
 export class TicketStatusService {
@@ -29,14 +30,14 @@ export class TicketStatusService {
    * @returns Uma promessa que resolve para os detalhes da alteração de status.
    */
 
-  async atualizarStatus(
+  async atualizarStatusGarantia(
     apiCall: ApiCallFunction,
-    data: CreateMensagem
-  ): Promise<StatusChange | null> {
+    data: CreateNewStatus
+  ): Promise<StatusHandler | null> {
     try {
-      const url = "/v1/ticket/status/atualizar"
+      const url = `/v1/ticket-garantia/status/atualizar`
 
-      const response = await apiCall<StatusChange>(url, {
+      const response = await apiCall<StatusHandler>(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -46,6 +47,85 @@ export class TicketStatusService {
     } catch (error) {
       console.error("Erro ao atualizar o ticket:", error)
       toast.error("Erro ao atualizar o ticket")
+      throw error
+    }
+  }
+
+  async atualizarStatusDivergencia(
+    apiCall: ApiCallFunction,
+    data: CreateNewStatus
+  ): Promise<StatusHandler | null> {
+    try {
+      const url = `/v1/ticket-divergencia/status/atualizar`
+
+      const response = await apiCall<StatusHandler>(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      })
+
+      return response ?? null
+    } catch (error) {
+      console.error("Erro ao atualizar o ticket:", error)
+      toast.error("Erro ao atualizar o ticket")
+      throw error
+    }
+  }
+
+  async listarStatusGarantia(
+    apiCall: ApiCallFunction,
+    ticketId: number
+  ): Promise<StatusHandler | null> {
+    if (!ticketId) {
+      console.warn("Ticket não encontrado!")
+      return null
+    }
+
+    try {
+      const url = `/v1/ticket-garantia/status/historico?ticketId=${ticketId}`
+
+      const response = await apiCall<StatusHandler>(url, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      })
+
+      if (response) {
+        return response as StatusHandler
+      }
+
+      return null
+    } catch (error) {
+      console.error("Erro ao atualizar o status do ticket: ", error)
+      toast.error("Erro ao atualizar o status do ticket")
+      throw error
+    }
+  }
+
+  async listarStatusDivergencia(
+    apiCall: ApiCallFunction,
+    ticketId: number
+  ): Promise<StatusHandler | null> {
+    if (!ticketId) {
+      console.warn("Ticket não encontrado!")
+      return null
+    }
+
+    try {
+      const url = `/v1/ticket-divergencia/status/historico?ticketId=${ticketId}`
+
+      const response = await apiCall<StatusHandler>(url, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      })
+
+      if (response) {
+        return response as StatusHandler
+      }
+
+      return null
+    } catch (error) {
+      console.error("Erro ao atualizar o status do ticket: ", error)
+      toast.error("Erro ao atualizar o status do ticket")
       throw error
     }
   }
