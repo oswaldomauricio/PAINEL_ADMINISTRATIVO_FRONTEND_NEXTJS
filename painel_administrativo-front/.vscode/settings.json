@@ -5,7 +5,8 @@
   "editor.formatOnPaste": false,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit"
+    "source.fixAll.eslint": "explicit",
+    "source.fixAll": "explicit"
   },
   "eslint.validate": [
     "javascript",
@@ -17,6 +18,7 @@
   ],
   "eslint.format.enable": true,
   "prettier.requireConfig": true,
+  "prettier.endOfLine": "lf",
   "files.insertFinalNewline": true,
   "files.eol": "\n",
   "files.associations": {
