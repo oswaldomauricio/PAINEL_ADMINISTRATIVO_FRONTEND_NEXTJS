@@ -1,116 +1,75 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+### Painel de Gerenciamento de Garantias e Divergências - Versão 1.0
 
-## Getting Started
+- Criação da estrutura de pastas e arquivos do projeto.
+- Implementação das funcionalidades
+  de [Login e autenticação de usuários, criação de tickets de garantia e divergências, envio de arquivos, envio de mensagens nos tickets, atualização de status dos tickets].
+- Desenvolvimento dos módulos de [Garantia e Divergência.].
+- Configuração inicial do banco de dados com as tabelas principais.
 
-First, run the development server:
+### Como testar?
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+**1. Executar o backend do projeto:**
+
+- Para rodar o backend, faça a verificação de como executa-lo dentro do readme.md no repositorio do projeto.
+  [Link do repositório do projeto](https://github.com/oswaldomauricio/API_PAINEL_ADMINISTRATIVO_SPRING_BOOT)
+
+- Após o projeto estar rodando, ja estará preparado para usar o frontend.
+
+**2. Clonar o repositorio e modificar o ./env**
+
+- Abra o arquivo `.env` e preencha as variáveis de ambiente com os dados.
+
+```env
+BASE_URL=                     (url base do front-end, ex: http://localhost:3000)
+NEXTAUTH_URL=                 (url base do front-end, ex: http://localhost:3000)
+
+HOME_PATHNAME=/dashboards/analytics
+
+NEXTAUTH_SECRET=              (secret aleatório para o NextAuth, ex: uma string longa e complexa)
+NEXT_PUBLIC_API_URL=          (url base do backend, ex: http://localhost:8081)
+
+PORT=3000                      (porta onde o front-end irá rodar, ex: 3000)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**3. Baixar e Compilar o Projeto:**
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Clone o repositório:
+  ```bash
+  git clone https://github.com/oswaldomauricio/PAINEL_ADMINISTRATIVO_FRONTEND_NEXTJS.git
+  cd [PASTA_DO_PROJETO]
+  ```
+- Use o npm ou yarn para instalar as dependências:
+  ```bash
+  npm install ou yarn install
+  ```
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+**4. Executar a Aplicação:**
 
-## Learn More
+- Inicie o projeto com o comando:
 
-To learn more about Next.js, take a look at the following resources:
+  ```bash
+  npm run build
+  ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+  ```bash
+  npm run start
+  ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+- Acesse a aplicação no navegador através do endereço `http://localhost:3000` (ou a porta que você configurou).
 
-## Deploy on Vercel
+#### Usando o docker
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Certifique-se de ter o Docker instalado e em execução na sua máquina.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+- No terminal, navegue até o diretório raiz do projeto onde está localizado o arquivo `Dockerfile`.
+- Execute o comando abaixo para construir a imagem Docker e iniciar o contêiner:
 
-# Shadboard - Next.js 15 & Shadcn/UI Admin Dashboard Template
+  ```bash
+  docker build -t painel-administrativo-frontend .
+  docker run -d -p 3000:3000 --name painel-administrativo painel-administrativo-frontend
+  ```
 
-**Shadboard** is an open-source admin dashboard template built with Next.js 15 and Shadcn/ui components for scalable, user-friendly web apps. It's free for the community to use, learn from, and contribute to.
-
-## Core Features
-
-- **React 19:** Built using React 19 for enhanced performance, concurrency, and an exceptional developer experience.
-- **Next.js 15:** Powered by Next.js 15, ensuring server-side rendering, SEO optimization, and app router support for smooth navigation.
-- **Tailwind CSS:** Styled with Tailwind CSS, offering a utility-first approach for fast and responsive UI design that’s easy to customize.
-- **Radix UI:** Utilizes Radix UI for high-quality, accessible, and unstyled components that ensure seamless interaction.
-- **Internationalization (I18n):** Built-in support for multiple languages, making it easy to expand your app globally and serve diverse user bases.
-- **Authentication:** Integrated user authentication and session management for secure user logins and data protection.
-- **Customizer:** A tool for dynamically changing the style and colors of the dashboard, perfect for previewing and selecting your preferred theme.
-- **Content Rich:** Includes pre-built apps and pages, along with reusable components, to speed up your development process.
-- **Accessible:** Designed with accessibility in mind, ensuring usability for all users, including those with disabilities.
-- **Pre-Made Layouts:** Offers ready-to-use layouts for dashboards, profiles, and other essential pages, enabling quick setups.
-- **Responsive:** Fully responsive design, adapting seamlessly to different screen sizes for an optimal user experience across all devices.
-- **Learning Resource:** Explore advanced web development approaches to build scalable, maintainable applications through included learning resources.
-- **Well-Documented:** Comprehensive documentation for easy integration and customization, ensuring a smooth setup process for developers of all skill levels.
-
-## Tools & Technologies
-
-- **React 19**
-- **Next.js 15**
-- **Radix UI + shadcn/ui**
-- **Tailwind CSS 4**
-- **NextAuth.js**
-- **Zod**
-- **React Hook Form**
-- **Lucide**
-- **React Icons**
-- **Recharts**
-- **TanStack Table**
-- **Embla Carousel**
-- **FullCalendar**
-
-> For more details on the sources and credits used in Shadboard, visit the [sources & credits page](https://shadboard.vercel.app/docs/miscellaneous/sources-and-credits).
-
-## Apps & Pages
-
-- **Email**
-- **Chat**
-- **Calendar**
-- **Kanban**
-- **Pricing**
-- **Payment**
-- **General Settings**
-- **Security Settings**
-- **Plan & Billing Settings**
-- **Notifications Settings**
-- **Coming Soon**
-- **Not Found 404**
-- **Unauthorized 401**
-- **Maintenance**
-- **Forgot Password**
-- **New Password**
-- **Verify Email**
-- **Register**
-- **Sign In**
-
-## Theme Customization
-
-**Shadboard** offers easy theme customization, allowing you to choose from pre-defined colors, border radii, and modes to match your brand’s identity effortlessly. Whether you're building a light or dark theme, Shadboard provides the flexibility to quickly adjust the look and feel of your dashboard. Tailor the dashboard's appearance to your project's unique needs with just a few clicks!
-
-## Documentation
-
-Get started with detailed instructions and guides to help you integrate and customize **Shadboard** into your projects. Visit the full documentation here: [Docs](https://shadboard.vercel.app/docs)
-
-## Contributing
-
-We welcome contributions from the community! If you’d like to report bugs, suggest features, or contribute code, please check out our [contributing guidelines](https://github.com/Qualiora/shadboard/blob/main/CONTRIBUTING.md) for everything you need to get started.
-
-## Live Demo
-
-See Shadboard in action by visiting the [live demo](https://shadboard.vercel.app/) now!
-
-## Get Started
-
-Get your hands on **Shadboard** today and start building scalable, user-friendly applications with ease!
+- ou use o docker-compose:
+  ```bash
+  docker-compose up -d --build
+  ```

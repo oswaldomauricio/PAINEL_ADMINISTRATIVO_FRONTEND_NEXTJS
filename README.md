@@ -1,79 +1,74 @@
-# Shadboard - Next.js 15 & Shadcn/UI Admin Dashboard Template
+### Painel de Gerenciamento de Garantias e Divergências - Versão 1.0
 
-**Shadboard** is an open-source admin dashboard template built with Next.js 15 and Shadcn/ui components for scalable, user-friendly web apps. It's free for the community to use, learn from, and contribute to.
+* Criação da estrutura de pastas e arquivos do projeto.
+* Implementação das funcionalidades
+  de [Login e autenticação de usuários, criação de tickets de garantia e divergências, envio de arquivos, envio de mensagens nos tickets, atualização de status dos tickets].
+* Desenvolvimento dos módulos de [Garantia e Divergência.].
+* Configuração inicial do banco de dados com as tabelas principais.
 
-## Core Features
+### Como testar?
 
-- **React 19:** Built using React 19 for enhanced performance, concurrency, and an exceptional developer experience.
-- **Next.js 15:** Powered by Next.js 15, ensuring server-side rendering, SEO optimization, and app router support for smooth navigation.
-- **Tailwind CSS:** Styled with Tailwind CSS, offering a utility-first approach for fast and responsive UI design that’s easy to customize.
-- **Radix UI:** Utilizes Radix UI for high-quality, accessible, and unstyled components that ensure seamless interaction.
-- **Internationalization (I18n):** Built-in support for multiple languages, making it easy to expand your app globally and serve diverse user bases.
-- **Authentication:** Integrated user authentication and session management for secure user logins and data protection.
-- **Customizer:** A tool for dynamically changing the style and colors of the dashboard, perfect for previewing and selecting your preferred theme.
-- **Content Rich:** Includes pre-built apps and pages, along with reusable components, to speed up your development process.
-- **Accessible:** Designed with accessibility in mind, ensuring usability for all users, including those with disabilities.
-- **Pre-Made Layouts:** Offers ready-to-use layouts for dashboards, profiles, and other essential pages, enabling quick setups.
-- **Responsive:** Fully responsive design, adapting seamlessly to different screen sizes for an optimal user experience across all devices.
-- **Learning Resource:** Explore advanced web development approaches to build scalable, maintainable applications through included learning resources.
-- **Well-Documented:** Comprehensive documentation for easy integration and customization, ensuring a smooth setup process for developers of all skill levels.
+**1. Executar o backend do projeto:**
 
-## Tools & Technologies
+* Para rodar o backend, faça a verificação de como executa-lo dentro do readme.md no repositorio do projeto.
+  [Link do repositório do projeto](https://github.com/oswaldomauricio/API_PAINEL_ADMINISTRATIVO_SPRING_BOOT)
 
-- **React 19** 
-- **Next.js 15**
-- **Radix UI + shadcn/ui**
-- **Tailwind CSS 4** 
-- **NextAuth.js**
-- **Zod**
-- **React Hook Form** 
-- **Lucide** 
-- **React Icons**
-- **Recharts** 
-- **TanStack Table** 
-- **Embla Carousel** 
-- **FullCalendar**
+* Após o projeto estar rodando, ja estará preparado para usar o frontend.
 
-> For more details on the sources and credits used in Shadboard, visit the [sources & credits page](https://shadboard.vercel.app/docs/miscellaneous/sources-and-credits).
+**2. Clonar o repositorio e modificar o ./env**
 
-## Apps & Pages
+* Abra o arquivo `.env` e preencha as variáveis de ambiente com os dados.
 
-- **Email**
-- **Chat**
-- **Calendar**
-- **Kanban**
-- **Pricing**
-- **Payment**
-- **General Settings**
-- **Security Settings**
-- **Plan & Billing Settings**
-- **Notifications Settings**
-- **Coming Soon**
-- **Not Found 404**
-- **Unauthorized 401**
-- **Maintenance**
-- **Forgot Password**
-- **New Password**
-- **Verify Email**
-- **Register**
-- **Sign In**
+```env
+BASE_URL=                     (url base do front-end, ex: http://localhost:3000)
+NEXTAUTH_URL=                 (url base do front-end, ex: http://localhost:3000)
 
-## Theme Customization
+HOME_PATHNAME=/dashboards/analytics
 
-**Shadboard** offers easy theme customization, allowing you to choose from pre-defined colors, border radii, and modes to match your brand’s identity effortlessly. Whether you're building a light or dark theme, Shadboard provides the flexibility to quickly adjust the look and feel of your dashboard. Tailor the dashboard's appearance to your project's unique needs with just a few clicks!
+NEXTAUTH_SECRET=              (secret aleatório para o NextAuth, ex: uma string longa e complexa)
+NEXT_PUBLIC_API_URL=          (url base do backend, ex: http://localhost:8081)
 
-## Documentation
+PORT=3000                      (porta onde o front-end irá rodar, ex: 3000)
+```
 
-Get started with detailed instructions and guides to help you integrate and customize **Shadboard** into your projects. Visit the full documentation here: [Docs](https://shadboard.vercel.app/docs)
+**3. Baixar e Compilar o Projeto:**
 
-## Contributing
+* Clone o repositório:
+    ```bash
+    git clone https://github.com/oswaldomauricio/PAINEL_ADMINISTRATIVO_FRONTEND_NEXTJS.git
+    cd [PASTA_DO_PROJETO]
+    ```
+* Use o npm ou yarn para instalar as dependências:
+    ```bash
+    npm install ou yarn install
+    ```
 
-We welcome contributions from the community! If you’d like to report bugs, suggest features, or contribute code, please check out our [contributing guidelines](https://github.com/Qualiora/shadboard/blob/main/CONTRIBUTING.md) for everything you need to get started.
+**4. Executar a Aplicação:**
 
-## Live Demo
+* Inicie o projeto com o comando:
+    ```bash
+    npm run build
+    ```
 
-See Shadboard in action by visiting the [live demo](https://shadboard.vercel.app/) now!
+    ```bash
+    npm run start
+    ```
+  
+* Acesse a aplicação no navegador através do endereço `http://localhost:3000` (ou a porta que você configurou).
 
-## Get Started
+#### Usando o docker
 
-Get your hands on **Shadboard** today and start building scalable, user-friendly applications with ease!
+* Certifique-se de ter o Docker instalado e em execução na sua máquina.
+
+* No terminal, navegue até o diretório raiz do projeto onde está localizado o arquivo `Dockerfile`.
+* Execute o comando abaixo para construir a imagem Docker e iniciar o contêiner:
+    ```bash
+    docker build -t painel-administrativo-frontend .
+    docker run -d -p 3000:3000 --name painel-administrativo painel-administrativo-frontend
+    ```
+
+* ou use o docker-compose:
+    ```bash
+    docker-compose up -d --build
+    ```
+  
