@@ -19,12 +19,12 @@ import { Toaster } from "@/components/ui/toaster"
 // More info: https://nextjs.org/docs/app/building-your-application/optimizing/metadata
 export const metadata: Metadata = {
   title: {
-    template: "%s | Norte auto Peças",
-    default: "Painel | Norte auto Peças",
+    template: "%s | Norte Auto Peças",
+    default: "Norte Auto Peças",
   },
   description: "",
   // metadataBase: new URL("/"),
-  // metadataBase: new URL(process.env.BASE_URL as string) || new URL("/"),
+  metadataBase: new URL(process.env.BASE_URL as string),
 }
 
 // Define fonts for the application
