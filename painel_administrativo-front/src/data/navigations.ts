@@ -2,13 +2,23 @@ import type { NavigationType } from "@/types"
 
 export const navigationsData: NavigationType[] = [
   {
-    title: "Main",
+    title: "Painel",
     items: [
       {
-        title: "Home",
-        href: "/",
-        iconName: "House",
+        title: "Dashboard",
+        href: "/dashboard",
+        iconName: "Package",
       },
+      // {
+      //   title: "Garantia",
+      //   href: "/garantias",
+      //   iconName: "Package",
+      // },
+      // {
+      //   title: "divergências",
+      //   href: "/divergencias",
+      //   iconName: "Package",
+      // },
     ],
   },
 ]

@@ -9,8 +9,12 @@ export type OrientationType = "vertical" | "horizontal"
 
 export type DirectionType = "ltr" | "rtl"
 
+<<<<<<< HEAD
+export type LocaleType = "en" | "pt-br"
+=======
 export type LocaleType = "pt-BR" | "en" | "ar"
 export type LanguageType = "pt-BR"
+>>>>>>> main
 
 export type ThemeType = string
 

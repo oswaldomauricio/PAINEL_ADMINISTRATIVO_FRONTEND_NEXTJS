@@ -1,0 +1,14 @@
+FROM node:18
+WORKDIR /app
+COPY package*.json ./
+
+ENV BASE_URL=
+ENV NEXT_PUBLIC_API_URL=
+ENV NEXTAUTH_SECRET=
+ENV SERVER_PORT=3001
+
+RUN npm install
+COPY . .
+RUN npm run build
+EXPOSE ${SERVER_PORT}
+CMD ["npm", "start"]

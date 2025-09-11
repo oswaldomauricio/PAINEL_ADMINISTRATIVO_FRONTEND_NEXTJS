@@ -11,7 +11,7 @@ const config = {
   tabWidth: 2,
   bracketSpacing: true,
   arrowParens: "always",
-  endOfLine: "lf",
+  endOfLine: "auto",
   tailwindStylesheet: "./src/app/globals.css",
   tailwindConfig: "./tailwind.config.ts",
   tailwindFunctions: ["cn", "clsx"],

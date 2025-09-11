@@ -4,6 +4,7 @@ import type { ReactNode } from "react"
 import { SettingsProvider } from "@/contexts/settings-context"
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { ModeProvider } from "./mode-provider"
+import { Providers as SessionProvider } from "./session-provider"
 import { ThemeProvider } from "./theme-provider"
 
 export function Providers({
@@ -15,11 +16,13 @@ export function Providers({
 }>) {
   return (
     <SettingsProvider locale={locale}>
-      <ModeProvider>
-        <ThemeProvider>
-          <SidebarProvider>{children}</SidebarProvider>
-        </ThemeProvider>
-      </ModeProvider>
+      <SessionProvider>
+        <ModeProvider>
+          <ThemeProvider>
+            <SidebarProvider>{children}</SidebarProvider>
+          </ThemeProvider>
+        </ModeProvider>
+      </SessionProvider>
     </SettingsProvider>
   )
 }

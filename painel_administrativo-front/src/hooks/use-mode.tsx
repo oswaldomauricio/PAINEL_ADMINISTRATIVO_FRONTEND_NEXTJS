@@ -11,7 +11,7 @@ export function useIsDarkMode() {
   let resolvedMode = settings.mode
 
   if (resolvedMode === "system") {
-    resolvedMode = isDarkModePreferred ? "dark" : "light"
+    resolvedMode = isDarkModePreferred ? "dark" : "dark"
   }
 
   return resolvedMode === "dark"

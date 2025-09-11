@@ -16,15 +16,16 @@ export function NotFound404() {
         />
 
         <h1 className="inline-grid text-6xl font-black">
-          404 <span className="text-3xl font-semibold">Page Not Found</span>
+          404{" "}
+          <span className="text-3xl font-semibold">Pagina não encontrada</span>
         </h1>
       </div>
       <p className="max-w-prose text-xl text-muted-foreground">
-        We couldn&apos;t find the page you&apos;re looking for. It might have
-        been moved or doesn&apos;t exist.
+        Não existe uma página aqui, mas você pode voltar para a página inicial e
+        continuar navegando pelo site.
       </p>
       <Button size="lg" asChild>
-        <Link href="/">Home Page</Link>
+        <Link href="/">Pagina inicial</Link>
       </Button>
     </div>
   )
