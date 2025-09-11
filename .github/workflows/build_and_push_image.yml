@@ -1,0 +1,72 @@
+name: CI-Frontend
+
+on:
+  push:
+    branches:
+      - main
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  CI:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Next.js
+        run: pnpm build
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+
+      - name: Install go-semantic-release
+        run: go install github.com/go-semantic-release/semantic-release/v2/cmd/semantic-release@latest
+
+      - name: Run semantic-release
+        id: semrel
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: semantic-release --provider github --no-ci --version-file .version
+
+      - name: Read generated version
+        id: version
+        run: |
+          VERSION=$(cat .version)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Docker Login
+        uses: docker/login-action@v3.5.0
+        with:
+          username: ${{ secrets.USERNAME_DOCKER }}
+          password: ${{ secrets.PASSWORD_DOCKER }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            oswaldo574/painel_administrativo_norteautopecas_frontend:${{ steps.version.outputs.version }}
+            oswaldo574/painel_administrativo_norteautopecas_frontend:latest
