@@ -31,9 +31,11 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+        working-directory: ./painel_administrativo-front
 
       - name: Build Next.js
         run: pnpm build
+        working-directory: ./painel_administrativo-front
 
       - name: Setup Go
         uses: actions/setup-go@v5
