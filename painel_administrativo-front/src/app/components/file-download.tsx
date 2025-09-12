@@ -13,7 +13,6 @@ import {
   Plus,
   Upload,
   User,
-  X,
 } from "lucide-react"
 
 import type React from "react"
@@ -45,7 +44,6 @@ export interface FileDownloadProps {
 export function FileDownload({
   attachments,
   onFilesAdd,
-  onFileRemove,
   canUpload = true,
   isUploading = false,
 }: FileDownloadProps) {
@@ -134,6 +132,7 @@ export function FileDownload({
       window.URL.revokeObjectURL(url)
     } catch (error) {
       console.error("Falha ao baixar o arquivo:", error)
+      toast.error(`Falha ao baixar "${attachment.name}".`)
       const message =
         error instanceof Error
           ? error.message
@@ -298,33 +297,9 @@ export function FileDownload({
                     <Download className="h-4 w-4" />
                     Download
                   </Button>
-                  {canUpload && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onFileRemove(attachment.id)}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  )}
                 </div>
               </div>
             ))}
-          </div>
-        )}
-
-        {/* Download All Button */}
-        {attachments.length > 1 && (
-          <div className="pt-4 border-t">
-            <Button
-              variant="outline"
-              className="w-full flex items-center gap-2"
-              onClick={() => console.log("Downloading all files as ZIP")}
-            >
-              <Download className="h-4 w-4" />
-              Baixar todos ({attachments.length})
-            </Button>
           </div>
         )}
       </CardContent>
