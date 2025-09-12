@@ -24,7 +24,8 @@ jobs:
           node-version: '22'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
+        working-directory: ./painel_administrativo-front
 
       - name: Build Next.js
         run: npm run build
