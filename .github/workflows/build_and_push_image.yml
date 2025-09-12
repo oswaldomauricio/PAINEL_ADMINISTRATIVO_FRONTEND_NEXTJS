@@ -30,6 +30,13 @@ jobs:
       - name: Build Next.js
         run: npm run build
         working-directory: ./painel_administrativo-front
+        env:
+          BASE_URL: ${{ secrets.BASE_URL }}
+          NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
+          HOME_PATHNAME: ${{ secrets.HOME_PATHNAME }}
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+          PORT: ${{ secrets.PORT }}
 
       - name: Setup Go
         uses: actions/setup-go@v5
