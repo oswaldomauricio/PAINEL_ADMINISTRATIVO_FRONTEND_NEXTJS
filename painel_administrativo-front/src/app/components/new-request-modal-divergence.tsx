@@ -6,10 +6,7 @@ import { toast } from "sonner"
 import { Package, Plus } from "lucide-react"
 
 import type React from "react"
-import type {
-  CriarDivergenciaDTO,
-  ProductDivergence,
-} from "../dashboard/types/types"
+import type { CriarDivergenciaDTO, ProductDivergence } from "../../types/types"
 
 import {
   validateCpfCnpj,

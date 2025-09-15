@@ -7,7 +7,7 @@ import { toast } from "sonner"
 import { Plus, Search, Wrench } from "lucide-react"
 
 import type { Roles } from "@/types/roles"
-import type { CriarGarantiaDTO, TicketPage } from "../../types/types"
+import type { CriarGarantiaDTO, TicketPage } from "../../../../types/types"
 
 import { hasPermission } from "@/lib/permissions"
 

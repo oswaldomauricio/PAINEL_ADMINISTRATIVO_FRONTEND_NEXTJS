@@ -2,7 +2,7 @@ import type {
   CriarGarantiaDTO,
   TicketPage,
   garantiasType,
-} from "../dashboard/types/types"
+} from "../../types/types"
 
 type ApiCallFunction = (url: string, options: RequestInit) => Promise<unknown>
 

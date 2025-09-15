@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation"
 
-import type { garantiasType } from "../dashboard/types/types"
+import type { garantiasType } from "../../types/types"
 
 import {
   formatToDDMMYYYYHHMM,

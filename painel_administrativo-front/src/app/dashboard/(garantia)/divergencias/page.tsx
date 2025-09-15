@@ -10,7 +10,7 @@ import type { Roles } from "@/types/roles"
 import type {
   CriarDivergenciaDTO,
   TicketPageDivergencia,
-} from "../../types/types"
+} from "../../../../types/types"
 
 import { hasPermission } from "@/lib/permissions"
 

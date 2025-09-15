@@ -4,7 +4,7 @@ import type {
   CriarDivergenciaDTO,
   TicketPageDivergencia,
   divergenciasType,
-} from "../dashboard/types/types"
+} from "../../types/types"
 
 type ApiCallFunction = (url: string, options: RequestInit) => Promise<unknown>
 

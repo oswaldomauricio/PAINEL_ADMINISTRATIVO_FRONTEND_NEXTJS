@@ -3,11 +3,8 @@ import { format, formatDistanceToNow, intervalToDuration } from "date-fns"
 import { twMerge } from "tailwind-merge"
 import { z } from "zod"
 
-import type {
-  ProductDivergence,
-  ProductWarranty,
-} from "@/app/dashboard/types/types"
 import type { LocaleType } from "@/types"
+import type { ProductDivergence, ProductWarranty } from "@/types/types"
 import type { ClassValue } from "clsx"
 
 export function cn(...inputs: ClassValue[]) {

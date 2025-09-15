@@ -1,5 +1,5 @@
+import type { FileUpload } from "../../types/types"
 import type { Attachment, FileDownloadProps } from "../components/file-download"
-import type { FileUpload } from "../dashboard/types/types"
 
 type ApiCallFunction = (url: string, options: RequestInit) => Promise<unknown>
 

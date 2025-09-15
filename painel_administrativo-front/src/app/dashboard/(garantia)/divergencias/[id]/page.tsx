@@ -20,13 +20,10 @@ import {
 } from "lucide-react"
 
 import type { Attachment } from "@/app/components/file-download"
-import type {
-  ProductDivergence,
-  divergenciasType,
-} from "@/app/dashboard/types/types"
 import type { StatusHandler } from "@/app/service/TicketStatusService"
 import type { Roles } from "@/types/roles"
-import { StatusTicketDivergencia } from "@/app/dashboard/types/types"
+import type { ProductDivergence, divergenciasType } from "@/types/types"
+import { StatusTicketDivergencia } from "@/types/types"
 
 import { hasPermission } from "@/lib/permissions"
 import { getStatusColor, handlePrint } from "@/lib/utils"
