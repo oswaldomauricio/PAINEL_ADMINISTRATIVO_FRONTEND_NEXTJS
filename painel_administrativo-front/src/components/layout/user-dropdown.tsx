@@ -90,7 +90,10 @@ export function UserDropdown() {
             <DropdownMenuSeparator />
           </DropdownMenuGroup>
         )}
-        <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/" })}>
+        <DropdownMenuItem
+          onClick={() => signOut({ callbackUrl: "/" })}
+          className="bg-red-500/10 text-red-500 hover:bg-red-500/20 focus:bg-red-500/20"
+        >
           <LogOut className="me-2 size-4" />
           Sair
         </DropdownMenuItem>
