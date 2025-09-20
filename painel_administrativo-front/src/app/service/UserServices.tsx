@@ -10,14 +10,14 @@ type ApiCallFunction = (url: string, options?: RequestInit) => Promise<unknown>
 export class UserServices {
   async criarUsuario(
     apiCall: ApiCallFunction,
-    { login, senha }: CreateUserFormData
+    { login, senha, email }: CreateUserFormData
   ): Promise<CreateUserResponse | null> {
     try {
       console.log("Criando usuário com login:", login, senha)
       const response = await apiCall(`/v1/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ login, senha }),
+        body: JSON.stringify({ login, senha, email }),
       })
 
       return response as CreateUserResponse

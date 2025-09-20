@@ -32,12 +32,14 @@ export interface CreateUserFormData {
   login: string
   senha: string
   confirmPassword: string
+  email: string
 }
 
 export interface CreateUserResponse {
   id: number
   login: string
   role: string
+  email: string
 }
 
 export default function RegistrarUsuarioPage() {
@@ -137,6 +139,9 @@ export default function RegistrarUsuarioPage() {
                     <p>
                       <strong>Regra:</strong> {success.role}
                     </p>
+                    <p>
+                      <strong>Email:</strong> {success.email}
+                    </p>
                   </div>
                   <div className="mt-4 flex gap-3">
                     <Button onClick={handleCreateAnother} size="sm">
@@ -200,6 +205,28 @@ export default function RegistrarUsuarioPage() {
                   {errors.login && (
                     <p className="text-sm text-red-600">
                       {errors.login.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email *</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="Digite o email do usuário"
+                    {...register("email", {
+                      required: "Email é obrigatório",
+                      pattern: {
+                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                        message: "Digite um email válido",
+                      },
+                    })}
+                    className={errors.email ? "border-red-500" : ""}
+                  />
+                  {errors.email && (
+                    <p className="text-sm text-red-600">
+                      {errors.email.message}
                     </p>
                   )}
                 </div>
