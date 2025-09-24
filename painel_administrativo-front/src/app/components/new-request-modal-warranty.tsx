@@ -6,10 +6,7 @@ import { toast } from "sonner"
 import { Package, Plus } from "lucide-react"
 
 import type React from "react"
-import type {
-  CriarGarantiaDTO,
-  ProductWarranty,
-} from "../dashboard/types/types"
+import type { CriarGarantiaDTO, ProductWarranty } from "../../types/types"
 
 import {
   validateCpfCnpj,

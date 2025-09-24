@@ -1,26 +1,35 @@
 // import Link from "next/link"
 import { useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { signOut, useSession } from "next-auth/react"
-import { LogOut } from "lucide-react"
+import { HousePlus, LogOut, User } from "lucide-react"
+
+import type { Roles } from "@/types/roles"
 
 import { userData } from "@/data/user"
 
-import { getInitials } from "@/lib/utils"
+import { hasPermission } from "@/lib/permissions"
+import { firstLetterUpperCase, getInitials } from "@/lib/utils"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
-  // DropdownMenuGroup,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
-  // DropdownMenuSeparator,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
 export function UserDropdown() {
   const { data: session, status } = useSession()
+  const router = useRouter()
+
+  const RoleUser = () => {
+    return session?.user?.role?.replaceAll("_", ": ").replaceAll("Role", "")
+  }
 
   useEffect(() => {
     if (status === "loading") return
@@ -56,27 +65,35 @@ export function UserDropdown() {
               {session?.user.name?.toUpperCase()}
             </p>
             <p className="text-xs text-muted-foreground font-semibold truncate mr-12">
-              {`${session?.user.role}`}
+              {firstLetterUpperCase(RoleUser() || "")}
             </p>
           </div>
         </DropdownMenuLabel>
-        {/* <DropdownMenuSeparator />
-        <DropdownMenuGroup className="max-w-48">
-          <DropdownMenuItem asChild>
-            <Link href="/">
+        <DropdownMenuSeparator />
+        {hasPermission(session?.user.role as Roles, "create:usuario") && (
+          <DropdownMenuGroup className="">
+            <DropdownMenuItem onClick={() => router.push("/usuario/registrar")}>
               <User className="me-2 size-4" />
-              Profile
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link href="/">
-              <UserCog className="me-2 size-4" />
-              Settings
-            </Link>
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator /> */}
-        <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/" })}>
+              Criar usuário
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+          </DropdownMenuGroup>
+        )}
+        {hasPermission(session?.user.role as Roles, "create:loja_usuario") && (
+          <DropdownMenuGroup className="">
+            <DropdownMenuItem
+              onClick={() => router.push("/usuario/adicionar-loja")}
+            >
+              <HousePlus className="me-2 size-4" />
+              Adicionar usuário à loja
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+          </DropdownMenuGroup>
+        )}
+        <DropdownMenuItem
+          onClick={() => signOut({ callbackUrl: "/" })}
+          className="bg-red-500/10 text-red-500 hover:bg-red-500/20 focus:bg-red-500/20"
+        >
           <LogOut className="me-2 size-4" />
           Sair
         </DropdownMenuItem>

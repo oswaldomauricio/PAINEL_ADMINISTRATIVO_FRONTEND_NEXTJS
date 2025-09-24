@@ -25,7 +25,7 @@ export function NotFound404() {
         continuar navegando pelo site.
       </p>
       <Button size="lg" asChild>
-        <Link href="/">Pagina inicial</Link>
+        <Link href="/dashboard">Pagina inicial</Link>
       </Button>
     </div>
   )

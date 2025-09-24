@@ -1,22 +1,23 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useState } from "react"
 import { useRouter } from "next/navigation"
 import { TicketGarantia } from "@/app/service/TicketsGarantiaService"
 import { toast } from "sonner"
 import { Plus, Search, Wrench } from "lucide-react"
 
 import type { Roles } from "@/types/roles"
-import type { CriarGarantiaDTO, TicketPage } from "../../types/types"
+import type { CriarGarantiaDTO, TicketPage } from "../../../../types/types"
+import { StatusTicketGarantia } from "../../../../types/types"
 
 import { hasPermission } from "@/lib/permissions"
+import { firstLetterUpperCase } from "@/lib/utils"
 
 import { useApi } from "@/hooks/use-api"
 import { useStore } from "@/contexts/lojaContext"
 import { Button } from "@/components/ui/button"
 import { CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { InputGroup, InputGroupText } from "@/components/ui/input-group"
 import BasicTableGarantia from "../../../components/table_garantia"
 import { NewRequestModalWarranty } from "@/app/components/new-request-modal-warranty"
 import SelectLojas from "@/app/components/ui/select-lojas"
@@ -25,42 +26,55 @@ const ticketGarantiaService = new TicketGarantia()
 
 export default function GarantiaPage() {
   const router = useRouter()
-  const [search, setSearch] = useState("")
   const [isNewRequestOpen, setIsNewRequestOpen] = useState(false)
   const { store } = useStore()
   const { apiCall, token, user } = useApi()
 
   const [page, setPage] = useState(0)
-  const [size] = useState(20)
+  const [size] = useState(50)
   const [ticketPage, setTicketPage] = useState<TicketPage>({
     content: [],
     totalElements: 0,
     totalPages: 0,
   })
+  const status = Object.values(StatusTicketGarantia).filter(
+    (value) => typeof value === "string"
+  )
 
   const [loading, setLoading] = useState(false)
+
+  const [filters, setFilters] = useState({
+    ticketId: "",
+    fornecedor: "",
+    nomeCliente: "",
+    cpfCnpj: "",
+    nota: "",
+    dataInicio: "",
+    dataFim: "",
+    status: "",
+  })
 
   const handleFetchTickets = useCallback(async () => {
     if (!token || !store) return
     setLoading(true)
     try {
-      const result = await ticketGarantiaService.listarTicketsPorLoja(
-        apiCall,
-        store,
+      const result = await ticketGarantiaService.listarTickets(apiCall, {
+        id_loja: store,
+        ...filters,
         page,
-        size
-      )
+        size,
+      })
       setTicketPage(result)
     } catch (error) {
       console.error("Erro ao buscar tickets:", error)
     } finally {
       setLoading(false)
     }
-  }, [token, store, apiCall, page, size])
+  }, [token, store, apiCall, page, size, filters])
 
-  useEffect(() => {
+  const handleButtonClick = () => {
     handleFetchTickets()
-  }, [handleFetchTickets])
+  }
 
   const handleNewRequest = async (requestData: CriarGarantiaDTO) => {
     try {
@@ -81,18 +95,6 @@ export default function GarantiaPage() {
       console.error("Erro ao criar ticket:", error)
     }
   }
-
-  const filteredData = Array.isArray(ticketPage.content)
-    ? ticketPage.content.filter(
-        (item) =>
-          item.id.toString().includes(search.toLowerCase()) ||
-          item.dias_em_aberto.toString().includes(search.toLowerCase()) ||
-          item.loja.toString().includes(search.toLowerCase()) ||
-          item.fornecedor.toLowerCase().includes(search.toLowerCase()) ||
-          item.nome_cliente.toLowerCase().includes(search.toLowerCase()) ||
-          item.descricao.toLowerCase().includes(search.toLowerCase())
-      )
-    : []
 
   return (
     <div className="container py-4">
@@ -119,15 +121,83 @@ export default function GarantiaPage() {
           </div>
         </div>
 
-        <div className="col-span-2 row-start-2 py-2">
-          <div className="flex flex-row items-center gap-4">
-            <CardContent className="w-2/6">
+        <div className="col-span-3 row-start-2 py-2">
+          {/* Filtros dinamicos */}
+          <div className="grid grid-cols-4 gap-4 rounded-t-2xl ">
+            <Input
+              placeholder="Número do Ticket"
+              value={filters.ticketId}
+              onChange={(e) =>
+                setFilters({ ...filters, ticketId: e.target.value })
+              }
+            />
+            <Input
+              placeholder="Fornecedor"
+              value={filters.fornecedor}
+              onChange={(e) =>
+                setFilters({ ...filters, fornecedor: e.target.value })
+              }
+            />
+            <Input
+              placeholder="Cliente"
+              value={filters.nomeCliente}
+              onChange={(e) =>
+                setFilters({ ...filters, nomeCliente: e.target.value })
+              }
+            />
+            <Input
+              placeholder="CPF/CNPJ"
+              value={filters.cpfCnpj}
+              onChange={(e) =>
+                setFilters({ ...filters, cpfCnpj: e.target.value })
+              }
+            />
+            <Input
+              placeholder="Número da Nota"
+              value={filters.nota}
+              onChange={(e) => setFilters({ ...filters, nota: e.target.value })}
+            />
+            <Input
+              type="date"
+              value={filters.dataInicio}
+              onChange={(e) =>
+                setFilters({ ...filters, dataInicio: e.target.value })
+              }
+            />
+            <Input
+              type="date"
+              value={filters.dataFim}
+              onChange={(e) =>
+                setFilters({ ...filters, dataFim: e.target.value })
+              }
+            />
+            <select
+              className="border rounded p-2"
+              value={filters.status}
+              onChange={(e) =>
+                setFilters({ ...filters, status: e.target.value })
+              }
+            >
+              <option value="">Todos</option>
+              {status.map((status) => (
+                <option key={status} value={status.toString()}>
+                  {firstLetterUpperCase(
+                    status.replaceAll("_", " ").toLowerCase()
+                  )}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Lojas + botão embaixo ocupando linha inteira */}
+          <div className="flex items-center gap-4 rounded-b-2xl py-4">
+            <CardContent className="w-1/3">
               <SelectLojas title="" />
             </CardContent>
             <Button
-              variant={"default"}
-              className="w-2/8 gap-4"
-              onClick={handleFetchTickets}
+              variant="default"
+              className="gap-4"
+              onClick={handleButtonClick}
               disabled={loading}
             >
               <Search className="h-4 w-4" />
@@ -136,22 +206,8 @@ export default function GarantiaPage() {
           </div>
         </div>
 
-        <div className="col-span-3 row-start-3">
-          <InputGroup className="w-full">
-            <InputGroupText aria-hidden>
-              <Search className="h-4 w-4" />
-            </InputGroupText>
-            <Input
-              type="search"
-              placeholder="Pesquisar..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </InputGroup>
-        </div>
-
         <div className="col-span-3 row-start-4 items-center">
-          <BasicTableGarantia data={filteredData} />
+          <BasicTableGarantia data={ticketPage.content} />
         </div>
       </div>
 

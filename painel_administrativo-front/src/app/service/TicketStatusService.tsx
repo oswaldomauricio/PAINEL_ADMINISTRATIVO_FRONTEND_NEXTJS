@@ -3,7 +3,7 @@ import { toast } from "sonner"
 import type {
   StatusTicketDivergencia,
   StatusTicketGarantia,
-} from "../dashboard/types/types"
+} from "../../types/types"
 
 type ApiCallFunction = <T>(url: string, options: RequestInit) => Promise<T>
 

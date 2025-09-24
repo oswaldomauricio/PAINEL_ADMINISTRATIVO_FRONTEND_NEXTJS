@@ -4,7 +4,7 @@ import type {
   CriarDivergenciaDTO,
   TicketPageDivergencia,
   divergenciasType,
-} from "../dashboard/types/types"
+} from "../../types/types"
 
 type ApiCallFunction = (url: string, options: RequestInit) => Promise<unknown>
 
@@ -18,22 +18,47 @@ export class TicketDivergencia {
    * @param size
    * @returns
    */
-  async listarTicketsPorLoja(
+  async listarTickets(
     apiCall: ApiCallFunction,
-    id_loja: string | number | null,
-    page: number,
-    size: number
+    params: {
+      id_loja?: string | number | null
+      ticketId?: string | number
+      fornecedor?: string
+      cpfCnpj?: string
+      nota?: string
+      dataInicio?: string
+      dataFim?: string
+      status?: string
+      page: number
+      size: number
+    }
   ): Promise<TicketPageDivergencia> {
-    if (!id_loja) {
+    if (!params.id_loja) {
       console.warn("ID da loja não fornecido para listar os tickets.")
       return { content: [], totalElements: 0, totalPages: 0 }
     }
 
     try {
-      const response = (await apiCall(
-        `/v1/ticket-divergencia/loja/${id_loja}?page=${page}&size=${size}&sort=id,desc`,
-        { method: "GET" }
-      )) as TicketPageDivergencia
+      const query = new URLSearchParams()
+
+      query.append("loja", String(params.id_loja))
+      if (params.ticketId) query.append("ticketId", String(params.ticketId))
+      if (params.fornecedor) query.append("fornecedor", params.fornecedor)
+      if (params.cpfCnpj) query.append("cpfCnpj", params.cpfCnpj)
+      if (params.nota) query.append("nota", params.nota)
+      if (params.dataInicio) query.append("dataInicio", params.dataInicio)
+      if (params.dataFim) query.append("dataFim", params.dataFim)
+      if (params.status) query.append("status", params.status)
+
+      query.append("page", String(params.page))
+      query.append("size", String(params.size))
+      query.append("sort", "id,desc")
+
+      const url = `/v1/ticket-divergencia?${query.toString()}`
+
+      const response = (await apiCall(url, {
+        method: "GET",
+      })) as TicketPageDivergencia
 
       return response || { content: [], totalElements: 0, totalPages: 0 }
     } catch (error) {
@@ -53,12 +78,13 @@ export class TicketDivergencia {
     }
 
     try {
-      const response = await apiCall(`/v1/ticket-divergencia/${id_ticket}`, {
-        method: "GET",
-      })
+      const response = (await apiCall(
+        `/v1/ticket-divergencia?ticketId=${id_ticket.toString()}`,
+        { method: "GET" }
+      )) as TicketPageDivergencia
 
-      if (response) {
-        return response as divergenciasType
+      if (response.content && response.content.length > 0) {
+        return response.content[0] as divergenciasType
       }
 
       return null

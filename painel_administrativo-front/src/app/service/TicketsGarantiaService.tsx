@@ -2,7 +2,7 @@ import type {
   CriarGarantiaDTO,
   TicketPage,
   garantiasType,
-} from "../dashboard/types/types"
+} from "../../types/types"
 
 type ApiCallFunction = (url: string, options: RequestInit) => Promise<unknown>
 
@@ -16,26 +16,53 @@ export class TicketGarantia {
    * @param size
    * @returns
    */
-  async listarTicketsPorLoja(
+  async listarTickets(
     apiCall: ApiCallFunction,
-    id_loja: string | number | null,
-    page: number,
-    size: number
+    params: {
+      id_loja?: string | number | null
+      ticketId?: string | number
+      fornecedor?: string
+      nomeCliente?: string
+      cpfCnpj?: string
+      nota?: string
+      dataInicio?: string
+      dataFim?: string
+      status?: string
+      page: number
+      size: number
+    }
   ): Promise<TicketPage> {
-    if (!id_loja) {
+    if (!params.id_loja) {
       console.warn("ID da loja não fornecido para listar os tickets.")
       return { content: [], totalElements: 0, totalPages: 0 }
     }
 
     try {
-      const url = `/v1/ticket-garantia/loja/${id_loja}?page=${page}&size=${size}&sort=id,desc`
+      const query = new URLSearchParams()
+
+      query.append("loja", String(params.id_loja))
+      if (params.ticketId) query.append("ticketId", String(params.ticketId))
+      if (params.fornecedor) query.append("fornecedor", params.fornecedor)
+      if (params.nomeCliente) query.append("nomeCliente", params.nomeCliente)
+      if (params.cpfCnpj) query.append("cpfCnpj", params.cpfCnpj)
+      if (params.nota) query.append("nota", params.nota)
+      if (params.dataInicio) query.append("dataInicio", params.dataInicio)
+      if (params.dataFim) query.append("dataFim", params.dataFim)
+      if (params.status) query.append("status", params.status)
+
+      query.append("page", String(params.page))
+      query.append("size", String(params.size))
+      query.append("sort", "id,desc")
+
+      const url = `/v1/ticket-garantia?${query.toString()}`
+
       const response = (await apiCall(url, {
         method: "GET",
       })) as TicketPage
 
       return response || { content: [], totalElements: 0, totalPages: 0 }
     } catch (error) {
-      console.error("Erro ao buscar tickets por loja no serviço:", error)
+      console.error("Erro ao buscar tickets no serviço:", error)
       throw error
     }
   }
@@ -50,14 +77,14 @@ export class TicketGarantia {
     }
 
     try {
-      const response = await apiCall(`/v1/ticket-garantia/${id_ticket}`, {
-        method: "GET",
-      })
+      const response = (await apiCall(
+        `/v1/ticket-garantia?ticketId=${id_ticket.toString()}`,
+        { method: "GET" }
+      )) as TicketPage
 
-      if (response) {
-        return response as garantiasType
+      if (response.content && response.content.length > 0) {
+        return response.content[0] as garantiasType
       }
-
       return null
     } catch (error) {
       console.error("Erro ao buscar o ticket por id no serviço:", error)

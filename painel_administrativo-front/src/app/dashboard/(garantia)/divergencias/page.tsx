@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useState } from "react"
 import { useRouter } from "next/navigation"
 import { TicketDivergencia } from "@/app/service/TicketsDivergenciaService"
 import { toast } from "sonner"
@@ -10,16 +10,17 @@ import type { Roles } from "@/types/roles"
 import type {
   CriarDivergenciaDTO,
   TicketPageDivergencia,
-} from "../../types/types"
+} from "../../../../types/types"
+import { StatusTicketDivergencia } from "../../../../types/types"
 
 import { hasPermission } from "@/lib/permissions"
+import { firstLetterUpperCase } from "@/lib/utils"
 
 import { useApi } from "@/hooks/use-api"
 import { useStore } from "@/contexts/lojaContext"
 import { Button } from "@/components/ui/button"
 import { CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { InputGroup, InputGroupText } from "@/components/ui/input-group"
 import BasicTableDivergencia from "../../../components/table_divergencia"
 import { NewRequestModalDivergence } from "@/app/components/new-request-modal-divergence"
 import SelectLojas from "@/app/components/ui/select-lojas"
@@ -28,42 +29,56 @@ const ticketDivergenciaService = new TicketDivergencia()
 
 export default function DivergenciaPage() {
   const router = useRouter()
-  const [search, setSearch] = useState("")
+
   const [isNewRequestOpen, setIsNewRequestOpen] = useState(false)
   const { store } = useStore()
   const { apiCall, token, user } = useApi()
 
   const [page, setPage] = useState(0)
-  const [size] = useState(20)
+  const [size] = useState(50)
   const [ticketPage, setTicketPage] = useState<TicketPageDivergencia>({
     content: [],
     totalElements: 0,
     totalPages: 0,
   })
+  const status = Object.values(StatusTicketDivergencia).filter(
+    (value) => typeof value === "string"
+  )
 
   const [loading, setLoading] = useState(false)
+
+  const [filters, setFilters] = useState({
+    ticketId: "",
+    fornecedor: "",
+    nomeCliente: "",
+    cpfCnpj: "",
+    nota: "",
+    dataInicio: "",
+    dataFim: "",
+    status: "",
+  })
 
   const handleFetchTickets = useCallback(async () => {
     if (!token || !store) return
     setLoading(true)
     try {
-      const result = await ticketDivergenciaService.listarTicketsPorLoja(
-        apiCall,
-        store,
+      const result = await ticketDivergenciaService.listarTickets(apiCall, {
+        id_loja: store,
+        ...filters,
         page,
-        size
-      )
+        size,
+      })
       setTicketPage(result)
     } catch (error) {
       console.error("Erro ao buscar tickets:", error)
     } finally {
       setLoading(false)
     }
-  }, [token, store, apiCall, page, size])
+  }, [token, store, apiCall, page, size, filters])
 
-  useEffect(() => {
+  const handleButtonClick = () => {
     handleFetchTickets()
-  }, [handleFetchTickets])
+  }
 
   const handleNewRequest = async (requestData: CriarDivergenciaDTO) => {
     try {
@@ -84,17 +99,6 @@ export default function DivergenciaPage() {
       console.error("Erro ao criar ticket:", error)
     }
   }
-
-  const filteredData = Array.isArray(ticketPage.content)
-    ? ticketPage.content.filter(
-        (item) =>
-          item.id.toString().includes(search.toLowerCase()) ||
-          item.dias_em_aberto.toString().includes(search.toLowerCase()) ||
-          item.loja.toString().includes(search.toLowerCase()) ||
-          item.fornecedor.toLowerCase().includes(search.toLowerCase()) ||
-          item.descricao.toLowerCase().includes(search.toLowerCase())
-      )
-    : []
 
   return (
     <div className="container py-4">
@@ -121,15 +125,76 @@ export default function DivergenciaPage() {
           </div>
         </div>
 
-        <div className="col-span-2 row-start-2 py-2">
-          <div className="flex flex-row items-center gap-4">
-            <CardContent className="w-2/6">
+        <div className="col-span-3 row-start-2 py-2">
+          {/* Filtros dinamicos */}
+          <div className="grid grid-cols-4 gap-4 rounded-t-2xl ">
+            <Input
+              placeholder="Número do Ticket"
+              value={filters.ticketId}
+              onChange={(e) =>
+                setFilters({ ...filters, ticketId: e.target.value })
+              }
+            />
+            <Input
+              placeholder="Fornecedor"
+              value={filters.fornecedor}
+              onChange={(e) =>
+                setFilters({ ...filters, fornecedor: e.target.value })
+              }
+            />
+            <Input
+              placeholder="CPF/CNPJ"
+              value={filters.cpfCnpj}
+              onChange={(e) =>
+                setFilters({ ...filters, cpfCnpj: e.target.value })
+              }
+            />
+            <Input
+              placeholder="Número da Nota"
+              value={filters.nota}
+              onChange={(e) => setFilters({ ...filters, nota: e.target.value })}
+            />
+            <Input
+              type="date"
+              value={filters.dataInicio}
+              onChange={(e) =>
+                setFilters({ ...filters, dataInicio: e.target.value })
+              }
+            />
+            <Input
+              type="date"
+              value={filters.dataFim}
+              onChange={(e) =>
+                setFilters({ ...filters, dataFim: e.target.value })
+              }
+            />
+            <select
+              className="border rounded p-2"
+              value={filters.status}
+              onChange={(e) =>
+                setFilters({ ...filters, status: e.target.value })
+              }
+            >
+              <option value="">Todos</option>
+              {status.map((status) => (
+                <option key={status} value={status.toString()}>
+                  {firstLetterUpperCase(
+                    status.replaceAll("_", " ").toLowerCase()
+                  )}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Lojas + botão embaixo ocupando linha inteira */}
+          <div className="flex items-center gap-4 rounded-b-2xl py-4">
+            <CardContent className="w-1/3">
               <SelectLojas title="" />
             </CardContent>
             <Button
-              variant={"default"}
-              className="w-2/8 gap-4"
-              onClick={handleFetchTickets}
+              variant="default"
+              className="gap-4"
+              onClick={handleButtonClick}
               disabled={loading}
             >
               <Search className="h-4 w-4" />
@@ -138,22 +203,8 @@ export default function DivergenciaPage() {
           </div>
         </div>
 
-        <div className="col-span-3 row-start-3">
-          <InputGroup className="w-full">
-            <InputGroupText aria-hidden>
-              <Search className="h-4 w-4" />
-            </InputGroupText>
-            <Input
-              type="search"
-              placeholder="Pesquisar..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </InputGroup>
-        </div>
-
         <div className="col-span-3 row-start-4 items-center">
-          <BasicTableDivergencia data={filteredData} />
+          <BasicTableDivergencia data={ticketPage.content} />
         </div>
       </div>
 

@@ -2,7 +2,7 @@
 
 import { Trash2 } from "lucide-react"
 
-import type { ProductDivergence } from "../dashboard/types/types"
+import type { ProductDivergence } from "../../types/types"
 
 import { Button } from "@/app/components/ui/button"
 import { Input } from "@/app/components/ui/input"

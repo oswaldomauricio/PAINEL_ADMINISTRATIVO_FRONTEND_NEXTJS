@@ -21,10 +21,10 @@ import {
 } from "lucide-react"
 
 import type { Attachment } from "@/app/components/file-download"
-import type { garantiasType } from "@/app/dashboard/types/types"
 import type { StatusHandler } from "@/app/service/TicketStatusService"
 import type { Roles } from "@/types/roles"
-import { StatusTicketGarantia } from "@/app/dashboard/types/types"
+import type { garantiasType } from "@/types/types"
+import { StatusTicketGarantia } from "@/types/types"
 
 import { hasPermission } from "@/lib/permissions"
 import { formatToDDMMYYYYHHMM, getStatusColor, handlePrint } from "@/lib/utils"
