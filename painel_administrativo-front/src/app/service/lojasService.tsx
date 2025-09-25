@@ -1,4 +1,18 @@
+import { toast } from "sonner"
+
+import type { LojasCadastradas } from "@/types/types"
+
 type ApiCallFunction = (url: string, options: RequestInit) => Promise<unknown>
+
+interface AtribuirUsuarioLojaDTO {
+  idUser: number
+  loja: number
+}
+
+interface ListarUsuario {
+  idUser: number
+  loja: number
+}
 
 export class LojasService {
   /**
@@ -28,6 +42,56 @@ export class LojasService {
       return []
     } catch (error) {
       console.error("Erro ao buscar lojas no serviço:", error)
+      throw error
+    }
+  }
+
+  async listarTodasAsLojasCadastradas(
+    apiCall: ApiCallFunction
+  ): Promise<LojasCadastradas[]> {
+    try {
+      const response = await apiCall(`/v1/lojas`, {
+        method: "GET",
+      })
+
+      if (!response) {
+        return []
+      }
+
+      return response as LojasCadastradas[]
+    } catch (error) {
+      console.error("Erro ao buscar lojas no serviço:", error)
+      throw error
+    }
+  }
+
+  async atribuirLojaParaUsuario(
+    apiCall: ApiCallFunction,
+    { idUser, loja }: AtribuirUsuarioLojaDTO
+  ): Promise<ListarUsuario> {
+    try {
+      const response = await apiCall(`/v1/lojas`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idUser, loja }),
+      })
+
+      if (!response) {
+        throw new Error("Não foi possível cadastrar a loja para o usuário!")
+      }
+
+      console.log(response, "response")
+
+      return response as ListarUsuario
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      if (error?.response?.status === 400 && error?.response?.data) {
+        toast.error(error.response.data)
+      } else {
+        console.error("Erro ao atribuir usuário à loja!")
+      }
+
+      console.error("Erro ao atribuir usuário à loja:", error)
       throw error
     }
   }
