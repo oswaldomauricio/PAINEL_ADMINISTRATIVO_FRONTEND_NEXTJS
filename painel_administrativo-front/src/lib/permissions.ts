@@ -35,7 +35,7 @@ export const permissions: Record<Roles, Permissions[]> = {
     "create:loja_usuario",
   ],
   ROLE_USER_GERENTE: ["read:ticket", "create:ticket", "create:ticketMensagem"],
-  ROLE_USER: ["read:ticket"],
+  ROLE_USER: ["read:ticket", "create:ticket", "create:ticketMensagem"],
   ROLE_USER_ESTOQUE: ["read:ticket"],
   ROLE_REGIONAL: ["read:ticket"],
 }
