@@ -16,8 +16,10 @@ import {
 } from "lucide-react"
 
 import type { Roles } from "@/types/roles"
+import type { usuariosCadastrados } from "@/types/types"
 
-import { hasPermission } from "@/lib/permissions"
+import { hasPermission, permissions } from "@/lib/permissions"
+import { firstLetterUpperCase } from "@/lib/utils"
 
 import { useApi } from "@/hooks/use-api"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -33,6 +35,7 @@ export interface CreateUserFormData {
   senha: string
   confirmPassword: string
   email: string
+  role: string
 }
 
 export interface CreateUserResponse {
@@ -50,6 +53,7 @@ export default function RegistrarUsuarioPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState<CreateUserResponse | null>(null)
+  const [users, setUsers] = useState<usuariosCadastrados[]>()
 
   const {
     register,
@@ -71,7 +75,6 @@ export default function RegistrarUsuarioPage() {
     setIsLoading(true)
     setError("")
     setSuccess(null)
-
     try {
       const result = await userServices.criarUsuario(apiCall, data)
 
@@ -79,9 +82,14 @@ export default function RegistrarUsuarioPage() {
         setSuccess(result)
         toast.success("Usuário criado com sucesso!")
       }
-    } catch (err) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
       console.error("Erro ao cadastrar usuário:", err)
       setError("Falha ao criar usuário")
+      if (err.message.includes("400")) {
+        toast.error(`O usuário ${user?.login} ja esta cadastrado!`)
+        setError(`O usuário ${user?.login} ja esta cadastrado!`)
+      }
     } finally {
       setIsLoading(false)
     }
@@ -92,6 +100,21 @@ export default function RegistrarUsuarioPage() {
     setError("")
     reset()
   }
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const allUsers =
+          await userServices.listarTodasOsUsuariosCadastradas(apiCall)
+        setUsers(allUsers)
+      } catch (error) {
+        console.error("Erro ao buscar usuários:", error)
+        toast.error("Erro ao carregar usuários")
+      }
+    }
+
+    fetchUsers()
+  }, [apiCall])
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -232,6 +255,27 @@ export default function RegistrarUsuarioPage() {
                 </div>
 
                 <div className="space-y-2">
+                  <Label htmlFor="role">Regra *</Label>
+                  <select
+                    id="role"
+                    {...register("role", { required: "A regra é obrigatória" })}
+                    className={`w-full border rounded px-3 py-2 ${errors.role ? "border-red-500" : ""}`}
+                  >
+                    <option value="">Selecione uma regra</option>
+                    {Object.keys(permissions).map((role) => (
+                      <option key={role} value={role}>
+                        {firstLetterUpperCase(role.replaceAll("_", " "))}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.role && (
+                    <p className="text-sm text-red-600">
+                      {errors.role.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
                   <Label htmlFor="senha">Senha *</Label>
                   <div className="relative">
                     <Input
@@ -344,6 +388,35 @@ export default function RegistrarUsuarioPage() {
                   Novos usuários são criados com role regra de USER por padrão.
                 </li>
               </ul>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Usuários Cadastradas</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-1 gap-6 p-4">
+              <div>
+                <h4 className="font-medium text-gray-900 mb-3">
+                  Usuários ({users?.length})
+                </h4>
+                <div className="space-y-2 max-h-40 overflow-y-auto">
+                  {users?.map((user) => (
+                    <div
+                      key={user.id}
+                      className="flex items-center gap-2 text-sm p-2 bg-gray-50 rounded"
+                    >
+                      <User className="h-4 w-4 text-gray-500" />
+                      <div>
+                        <p className="font-medium">{user.login}</p>
+                        <p className="text-xs text-gray-500">{user.email}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>

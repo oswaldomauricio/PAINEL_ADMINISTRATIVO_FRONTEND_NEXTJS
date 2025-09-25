@@ -1,3 +1,5 @@
+import type { Roles } from "./roles"
+
 export type Status =
   | "NOVO"
   | "PENDENTE"
@@ -107,6 +109,30 @@ export interface TicketPageDivergencia {
   content: divergenciasType[]
   totalElements: number
   totalPages: number
+}
+
+export interface LojasCadastradas {
+  loja: number
+  nomeLoja: string | null
+  endereco: string | null
+  estado: string | null
+  sigla: string | null
+  cidade: string | null
+  email: string | null
+  latitude: number | null
+  longitude: number | null
+  segmentacao: string | null
+  segmentacao2: string | null
+  telefone: string | null
+  whatsapp: string | null
+  horario: string | null
+}
+
+export interface usuariosCadastrados {
+  id: number
+  login: string
+  email: string
+  role: Roles
 }
 
 export enum StatusTicketGarantia {
