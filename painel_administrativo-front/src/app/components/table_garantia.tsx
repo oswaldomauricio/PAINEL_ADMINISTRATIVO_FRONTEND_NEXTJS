@@ -47,8 +47,9 @@ export default function BasicTableGarantia({ data }: BasicTableGarantiaProps) {
               <TableHead className="w-[40px]"></TableHead>
               <TableHead className="w-[100px]">Ticket</TableHead>
               <TableHead className="text-center">Loja</TableHead>
-              <TableHead className="text-center">Nome do cliente</TableHead>
               <TableHead className="text-center">Fornecedor</TableHead>
+              <TableHead className="text-center">Nome do cliente</TableHead>
+              <TableHead className="text-center">CPF / CNPJ</TableHead>
               <TableHead className="text-center">Data de solicitação</TableHead>
               <TableHead className="text-center">Nota de venda</TableHead>
               <TableHead className="text-center">Dias em aberto</TableHead>
@@ -96,10 +97,13 @@ export default function BasicTableGarantia({ data }: BasicTableGarantiaProps) {
                     </TableCell>
                     <TableCell className="text-center">{item.loja}</TableCell>
                     <TableCell className="text-center">
+                      {item.fornecedor.toUpperCase()}
+                    </TableCell>
+                    <TableCell className="text-center">
                       {truncateName(item.nome_cliente.toUpperCase(), 50)}
                     </TableCell>
                     <TableCell className="text-center">
-                      {item.fornecedor.toUpperCase()}
+                      {item.cpfCnpj}
                     </TableCell>
                     <TableCell className="text-center">
                       {formatToDDMMYYYYHHMM(item.data_solicitacao)}
