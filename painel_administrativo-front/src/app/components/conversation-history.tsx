@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { toast } from "sonner"
 import { Clock, MessageCircle, Shield } from "lucide-react"
 
 import type { Roles } from "@/types/roles"
@@ -33,6 +34,7 @@ export function ConversationHistory({
   const [newMessage, setNewMessage] = useState("")
   const [isInternal, setIsInternal] = useState(false)
   const [conversations, setConversations] = useState<Mensagem[]>([])
+  const [isSending, setIsSending] = useState(false)
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -53,8 +55,14 @@ export function ConversationHistory({
   }, [ticketId, tipo_ticket, apiCall])
 
   const handleSendMessage = async () => {
+    if (!hasPermission(user?.role as Roles, "create:ticketMensagem")) {
+      console.warn("Usuário não tem permissão para enviar mensagens")
+      return
+    }
+
     if (newMessage.trim()) {
       try {
+        setIsSending(true)
         const service = new TicketMessageService()
         const created = await service.criarNovaMensagem(
           apiCall,
@@ -73,7 +81,10 @@ export function ConversationHistory({
         setNewMessage("")
         setIsInternal(false)
       } catch (error) {
-        console.error("Erro ao enviar mensagem:", error)
+        toast.error("Erro ao enviar mensagem:")
+        console.error("Erro ao enviar mensagem: ", error)
+      } finally {
+        setIsSending(false)
       }
     }
   }
@@ -125,12 +136,15 @@ export function ConversationHistory({
                     <span className="font-medium text-sm">
                       {conversation.usuario.login}
                     </span>
-                    {conversation.usuario.role !== "ROLE_USER" && (
+                    {conversation.usuario.role
+                      .toUpperCase()
+                      .includes("ADMIN") && (
                       <Badge variant="secondary" className="text-xs">
                         <Shield className="h-3 w-3 mr-1" />
                         Admin
                       </Badge>
                     )}
+
                     {conversation.internal &&
                       hasPermission(
                         user?.role as Roles,
@@ -151,7 +165,7 @@ export function ConversationHistory({
 
                   <div
                     className={`p-3 rounded-lg ${
-                      conversation.usuario.role !== "ROLE_USER"
+                      conversation.usuario.role.toUpperCase().includes("ADMIN")
                         ? conversation.internal
                           ? "bg-orange-50 border border-orange-200"
                           : "bg-blue-50 border border-blue-200"
@@ -206,10 +220,21 @@ export function ConversationHistory({
 
             <Button
               onClick={handleSendMessage}
-              disabled={!newMessage.trim()}
-              className="w-full"
+              disabled={
+                isSending ||
+                !newMessage.trim() ||
+                !hasPermission(user?.role as Roles, "create:ticketMensagem")
+              }
+              className="w-full flex items-center justify-center gap-2"
             >
-              Enviar mensagem
+              {isSending ? (
+                <>
+                  <span className="animate-spin border-2 border-t-transparent border-white rounded-full h-4 w-4" />
+                  Enviando...
+                </>
+              ) : (
+                "Enviar mensagem"
+              )}
             </Button>
           </div>
         )}
