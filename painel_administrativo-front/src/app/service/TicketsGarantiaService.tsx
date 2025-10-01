@@ -1,6 +1,7 @@
 import type {
   CriarGarantiaDTO,
   TicketPage,
+  estatisticasTickets,
   garantiasType,
 } from "../../types/types"
 
@@ -110,6 +111,32 @@ export class TicketGarantia {
       return null
     } catch (error) {
       console.error("Erro ao criar ticket, verifique!:", error)
+      throw error
+    }
+  }
+
+  async listarEstatisticasDoTicket(
+    apiCall: ApiCallFunction,
+    loja: number | string
+  ): Promise<estatisticasTickets | null> {
+    if (!loja) {
+      console.warn("loja não enviada, verifique!")
+      return null
+    }
+
+    try {
+      const response = (await apiCall(
+        `/v1/ticket-garantia/estatisticas/${loja}`,
+        { method: "GET" }
+      )) as estatisticasTickets
+
+      if (response) {
+        return response as estatisticasTickets
+      }
+
+      return null
+    } catch (error) {
+      console.error("Erro ao buscar estatisticas do ticket:", error)
       throw error
     }
   }
