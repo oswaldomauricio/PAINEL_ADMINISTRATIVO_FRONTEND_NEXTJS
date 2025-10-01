@@ -7,7 +7,11 @@ import { toast } from "sonner"
 import { Plus, Search, Wrench } from "lucide-react"
 
 import type { Roles } from "@/types/roles"
-import type { CriarGarantiaDTO, TicketPage } from "../../../../types/types"
+import type {
+  CriarGarantiaDTO,
+  TicketPage,
+  estatisticasTickets,
+} from "../../../../types/types"
 import { StatusTicketGarantia } from "../../../../types/types"
 
 import { hasPermission } from "@/lib/permissions"
@@ -17,6 +21,7 @@ import { useApi } from "@/hooks/use-api"
 import { useStore } from "@/contexts/lojaContext"
 import { Button } from "@/components/ui/button"
 import { CardContent } from "@/components/ui/card"
+import CardsEstatisticas from "@/components/ui/cards-estatisticas"
 import { Input } from "@/components/ui/input"
 import BasicTableGarantia from "../../../components/table_garantia"
 import { NewRequestModalWarranty } from "@/app/components/new-request-modal-warranty"
@@ -54,6 +59,14 @@ export default function GarantiaPage() {
     status: "",
   })
 
+  const [stats, setStats] = useState<estatisticasTickets>({
+    totalTickets: 0,
+    ticketsAbertos: 0,
+    ticketsEmAndamento: 0,
+    ticketsConcluidos: 0,
+    ticketsCancelados: 0,
+  })
+
   const handleFetchTickets = useCallback(async () => {
     if (!token || !store) return
     setLoading(true)
@@ -72,8 +85,22 @@ export default function GarantiaPage() {
     }
   }, [token, store, apiCall, page, size, filters])
 
+  const handleFetchStats = useCallback(async () => {
+    if (!token || !store) return
+    try {
+      const resumo = await ticketGarantiaService.listarEstatisticasDoTicket(
+        apiCall,
+        store
+      )
+      setStats(resumo as estatisticasTickets)
+    } catch (error) {
+      console.error("Erro ao buscar estatísticas:", error)
+    }
+  }, [token, store, apiCall])
+
   const handleButtonClick = () => {
     handleFetchTickets()
+    handleFetchStats()
   }
 
   const handleNewRequest = async (requestData: CriarGarantiaDTO) => {
@@ -122,6 +149,14 @@ export default function GarantiaPage() {
         </div>
 
         <div className="col-span-3 row-start-2 py-2">
+          <CardsEstatisticas
+            totalTickets={stats.totalTickets}
+            ticketsAbertos={stats.ticketsAbertos}
+            ticketsEmAndamento={stats.ticketsEmAndamento}
+            ticketsConcluidos={stats.ticketsConcluidos}
+            ticketsCancelados={stats.ticketsCancelados}
+          />
+
           {/* Filtros dinamicos */}
           <div className="grid grid-cols-4 gap-4 rounded-t-2xl ">
             <Input

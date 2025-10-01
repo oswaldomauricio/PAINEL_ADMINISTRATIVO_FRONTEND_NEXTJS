@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { TicketDivergencia } from "@/app/service/TicketsDivergenciaService"
 import { toast } from "sonner"
@@ -10,6 +10,7 @@ import type { Roles } from "@/types/roles"
 import type {
   CriarDivergenciaDTO,
   TicketPageDivergencia,
+  estatisticasTickets,
 } from "../../../../types/types"
 import { StatusTicketDivergencia } from "../../../../types/types"
 
@@ -20,6 +21,7 @@ import { useApi } from "@/hooks/use-api"
 import { useStore } from "@/contexts/lojaContext"
 import { Button } from "@/components/ui/button"
 import { CardContent } from "@/components/ui/card"
+import CardsEstatisticas from "@/components/ui/cards-estatisticas"
 import { Input } from "@/components/ui/input"
 import BasicTableDivergencia from "../../../components/table_divergencia"
 import { NewRequestModalDivergence } from "@/app/components/new-request-modal-divergence"
@@ -58,6 +60,14 @@ export default function DivergenciaPage() {
     status: "",
   })
 
+  const [stats, setStats] = useState<estatisticasTickets>({
+    totalTickets: 0,
+    ticketsAbertos: 0,
+    ticketsEmAndamento: 0,
+    ticketsConcluidos: 0,
+    ticketsCancelados: 0,
+  })
+
   const handleFetchTickets = useCallback(async () => {
     if (!token || !store) return
     setLoading(true)
@@ -76,8 +86,22 @@ export default function DivergenciaPage() {
     }
   }, [token, store, apiCall, page, size, filters])
 
+  const handleFetchStats = useCallback(async () => {
+    if (!token || !store) return
+    try {
+      const resumo = await ticketDivergenciaService.listarEstatisticasDoTicket(
+        apiCall,
+        store
+      )
+      setStats(resumo as estatisticasTickets)
+    } catch (error) {
+      console.error("Erro ao buscar estatísticas:", error)
+    }
+  }, [token, store, apiCall])
+
   const handleButtonClick = () => {
     handleFetchTickets()
+    handleFetchStats()
   }
 
   const handleNewRequest = async (requestData: CriarDivergenciaDTO) => {
@@ -99,6 +123,12 @@ export default function DivergenciaPage() {
       console.error("Erro ao criar ticket:", error)
     }
   }
+
+  // Carregar dados ao montar a página
+  useEffect(() => {
+    handleFetchTickets()
+    handleFetchStats()
+  }, [handleFetchTickets, handleFetchStats])
 
   return (
     <div className="container py-4">
@@ -126,7 +156,15 @@ export default function DivergenciaPage() {
         </div>
 
         <div className="col-span-3 row-start-2 py-2">
-          {/* Filtros dinamicos */}
+          <CardsEstatisticas
+            totalTickets={stats.totalTickets}
+            ticketsAbertos={stats.ticketsAbertos}
+            ticketsEmAndamento={stats.ticketsEmAndamento}
+            ticketsConcluidos={stats.ticketsConcluidos}
+            ticketsCancelados={stats.ticketsCancelados}
+          />
+
+          {/* --- Filtros dinâmicos --- */}
           <div className="grid grid-cols-4 gap-4 rounded-t-2xl ">
             <Input
               placeholder="Número do Ticket"

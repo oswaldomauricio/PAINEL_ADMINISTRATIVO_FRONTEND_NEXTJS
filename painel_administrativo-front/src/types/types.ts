@@ -164,3 +164,11 @@ export enum StatusTicketDivergencia {
   CONCLUIDO,
   CANCELADO,
 }
+
+export interface estatisticasTickets {
+  totalTickets: number
+  ticketsAbertos: number
+  ticketsEmAndamento: number
+  ticketsConcluidos: number
+  ticketsCancelados: number
+}
