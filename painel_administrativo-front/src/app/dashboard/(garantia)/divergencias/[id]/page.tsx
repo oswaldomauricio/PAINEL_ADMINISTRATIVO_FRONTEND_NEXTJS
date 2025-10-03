@@ -242,7 +242,7 @@ export default function TicketPage() {
             <div className="flex items-center gap-8">
               <Button variant={"link"} className="flex items-center gap-8">
                 <Link
-                  href="/dashboard/garantias"
+                  href="/dashboard/divergencias"
                   className="gap-2 flex items-center flex-row"
                 >
                   <ChevronLeft />
