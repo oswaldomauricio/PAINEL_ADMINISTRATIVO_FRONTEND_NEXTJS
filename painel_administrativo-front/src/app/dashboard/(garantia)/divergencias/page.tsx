@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useState } from "react"
 import { useRouter } from "next/navigation"
 import { TicketDivergencia } from "@/app/service/TicketsDivergenciaService"
 import { toast } from "sonner"
@@ -81,6 +81,7 @@ export default function DivergenciaPage() {
       setTicketPage(result)
     } catch (error) {
       console.error("Erro ao buscar tickets:", error)
+      toast.error("Erro ao buscar tickets")
     } finally {
       setLoading(false)
     }
@@ -96,6 +97,7 @@ export default function DivergenciaPage() {
       setStats(resumo as estatisticasTickets)
     } catch (error) {
       console.error("Erro ao buscar estatísticas:", error)
+      toast.error("Erro ao buscar estatísticas")
     }
   }, [token, store, apiCall])
 
@@ -123,12 +125,6 @@ export default function DivergenciaPage() {
       console.error("Erro ao criar ticket:", error)
     }
   }
-
-  // Carregar dados ao montar a página
-  useEffect(() => {
-    handleFetchTickets()
-    handleFetchStats()
-  }, [handleFetchTickets, handleFetchStats])
 
   return (
     <div className="container py-4">

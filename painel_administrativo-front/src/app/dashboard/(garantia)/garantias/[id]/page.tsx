@@ -64,6 +64,7 @@ export default function TicketPage() {
   const [isUploading, setIsUploading] = useState(false)
   const [attachments, setAttachments] = useState<Attachment[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isUpdating, setIsUpdating] = useState(false)
   const [statusHistory, setStatusHistory] = useState<StatusHandler[]>([])
   const statuses = Object.values(StatusTicketGarantia).filter(
     (value) => typeof value === "string"
@@ -178,6 +179,7 @@ export default function TicketPage() {
       mensagem: statusUpdate,
     }
 
+    setIsUpdating(true)
     toast.info("Atualizando status do ticket...")
 
     try {
@@ -193,6 +195,8 @@ export default function TicketPage() {
     } catch (error) {
       toast.error("Falha ao atualizar o status no componente:")
       console.error("Falha ao atualizar o status no componente:", error)
+    } finally {
+      setIsUpdating(false)
     }
   }
 
@@ -519,10 +523,12 @@ export default function TicketPage() {
                           onClick={handleStatusUpdate}
                           className="w-full"
                           disabled={
-                            !statusUpdate.trim() || newStatus === ticket.status
+                            isUpdating ||
+                            !statusUpdate.trim() ||
+                            newStatus === ticket.status
                           }
                         >
-                          Atualizar status
+                          {isUpdating ? "Atualizando..." : "Atualizar status"}
                         </Button>
                       </CardContent>
                     </Card>
