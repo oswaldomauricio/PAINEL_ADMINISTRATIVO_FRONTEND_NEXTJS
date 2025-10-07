@@ -32,7 +32,9 @@ export function ProductInput({
         <Input
           id="productCode"
           value={product.codigo_produto}
-          onChange={(e) => onUpdate("codigo_produto", e.target.value)}
+          onChange={(e) =>
+            onUpdate("codigo_produto", e.target.value.toUpperCase())
+          }
           placeholder="Digite o codigo..."
           required
         />

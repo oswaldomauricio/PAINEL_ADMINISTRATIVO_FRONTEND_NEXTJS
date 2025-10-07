@@ -3,12 +3,13 @@
 import { useState } from "react"
 import { useSession } from "next-auth/react"
 import { toast } from "sonner"
-import { Package, Plus } from "lucide-react"
+import { Loader2, Package, Plus } from "lucide-react"
 
 import type React from "react"
 import type { CriarDivergenciaDTO, ProductDivergence } from "../../types/types"
 
 import {
+  validateCnpj,
   validateCpfCnpj,
   validateDescricao,
   validateNota,
@@ -50,6 +51,7 @@ export function NewRequestModalDivergence({
   const [produtos, setProdutos] = useState<ProductDivergence[]>([
     { codigo_produto: "", quantidade: 0, tipo_divergencia: "" },
   ])
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const addProduct = () => {
     setProdutos([
@@ -73,25 +75,36 @@ export function NewRequestModalDivergence({
   }
 
   const isFormValid = () => {
-    return (
-      (store &&
-        fornecedor.trim().length > 0 &&
-        nota.trim().length >= 1 &&
-        nota.trim().length <= 9 &&
-        cpfCnpj.length === 11) ||
-      (cpfCnpj.length === 14 &&
-        produtos.length > 0 &&
-        produtos.every(
-          (p) =>
-            p.codigo_produto.trim().length > 0 &&
-            p.quantidade > 0 &&
-            p.tipo_divergencia.toString().length > 0
-        ))
-    )
+    const basicValidations =
+      store &&
+      fornecedor.trim().length > 0 &&
+      nota.trim().length >= 1 &&
+      nota.trim().length <= 9 &&
+      (cpfCnpj.length === 11 || cpfCnpj.length === 14) &&
+      produtos.length > 0 &&
+      produtos.every(
+        (p) =>
+          p.codigo_produto.trim().length > 0 &&
+          p.quantidade > 0 &&
+          p.tipo_divergencia.toString().length > 0
+      )
+
+    const noValidationErrors =
+      !validateCpfCnpj(cpfCnpj) &&
+      !validateNota(nota) &&
+      !validateDescricao(descricao) &&
+      !validateProdutosDivergencia(produtos)
+
+    return basicValidations && noValidationErrors
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (!isFormValid()) {
+      toast.error("Por favor, corrija os erros antes de enviar.")
+      return
+    }
 
     if (!store) return
 
@@ -105,8 +118,16 @@ export function NewRequestModalDivergence({
       produtos,
     }
 
-    onSubmit(payload)
-    toast.success("Ticket criado com sucesso!")
+    try {
+      setIsSubmitting(true)
+      await onSubmit(payload)
+      toast.success("Ticket criado com sucesso!")
+    } catch (error) {
+      toast.error("Erro ao criar ticket.")
+      console.error(error)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -131,7 +152,7 @@ export function NewRequestModalDivergence({
                 <Input
                   id="supplier"
                   value={fornecedor}
-                  onChange={(e) => setFornecedor(e.target.value)}
+                  onChange={(e) => setFornecedor(e.target.value.toUpperCase())}
                   placeholder="Nome do fornecedor"
                   required
                 />
@@ -142,7 +163,7 @@ export function NewRequestModalDivergence({
                 <Input
                   id="salesNote"
                   value={nota}
-                  onChange={(e) => setNota(e.target.value)}
+                  onChange={(e) => setNota(e.target.value.replace(/\D/g, ""))}
                   placeholder="Nota"
                   required
                   minLength={1}
@@ -156,24 +177,22 @@ export function NewRequestModalDivergence({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="customerDocument">
-                  CPF/CNPJ do fornecedor *
-                </Label>
+                <Label htmlFor="supplierCnpj">CNPJ do fornecedor *</Label>
                 <Input
-                  id="customerDocument"
+                  id="supplierCnpj"
                   value={cpfCnpj}
                   onChange={(e) =>
                     setCpfCnpj(e.target.value.replace(/\D/g, ""))
                   }
-                  placeholder="CPF / CNPJ"
+                  placeholder="CNPJ"
                   required
                   minLength={14}
                   maxLength={14}
-                  pattern="^[0-9]{11}$|^[0-9]{14}$"
+                  pattern="^[0-9]{14}$"
                 />
-                {validateCpfCnpj(cpfCnpj) && (
+                {validateCnpj(cpfCnpj) && (
                   <p className="text-red-500 text-xs mt-1">
-                    {validateCpfCnpj(cpfCnpj)}
+                    {validateCnpj(cpfCnpj)}
                   </p>
                 )}
               </div>
@@ -243,7 +262,16 @@ export function NewRequestModalDivergence({
             </Button>
 
             {isFormValid() ? (
-              <Button type="submit">Enviar solicitação</Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Enviando...
+                  </>
+                ) : (
+                  "Enviar solicitação"
+                )}
+              </Button>
             ) : (
               <p className="text-red-500 text-sm flex items-center">
                 Preencha todos os campos obrigatórios corretamente para enviar.

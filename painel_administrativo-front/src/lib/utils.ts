@@ -410,6 +410,13 @@ export const validateCpfCnpj = (cpfCnpj: string) => {
   return null
 }
 
+export const validateCnpj = (cnpj: string) => {
+  if (!/^[0-9]{14}$/.test(cnpj)) {
+    return "Digite um CNPJ válido com 14 dígitos numéricos."
+  }
+  return null
+}
+
 export const validateProdutos = (produtos: ProductWarranty[]) => {
   if (produtos.length === 0) {
     return "Adicione pelo menos um produto."
