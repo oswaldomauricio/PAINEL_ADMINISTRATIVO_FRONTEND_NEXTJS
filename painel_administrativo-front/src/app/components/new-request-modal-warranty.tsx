@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useSession } from "next-auth/react"
 import { toast } from "sonner"
-import { Package, Plus } from "lucide-react"
+import { Loader2, Package, Plus } from "lucide-react"
 
 import type React from "react"
 import type { CriarGarantiaDTO, ProductWarranty } from "../../types/types"
@@ -51,6 +51,7 @@ export function NewRequestModalWarranty({
   const [produtos, setProdutos] = useState<ProductWarranty[]>([
     { codigo_produto: "", quantidade: 0, valor_unitario: 0 },
   ])
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const addProduct = () => {
     setProdutos([
@@ -74,7 +75,7 @@ export function NewRequestModalWarranty({
   }
 
   const isFormValid = () => {
-    return (
+    const basicValidations =
       store &&
       fornecedor.trim().length > 0 &&
       nota.trim().length >= 1 &&
@@ -88,11 +89,23 @@ export function NewRequestModalWarranty({
           p.quantidade > 0 &&
           p.valor_unitario >= 0
       )
-    )
+
+    const noValidationErrors =
+      !validateCpfCnpj(cpfCnpj) &&
+      !validateNota(nota) &&
+      !validateDescricao(descricao) &&
+      !validateProdutos(produtos)
+
+    return basicValidations && noValidationErrors
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (!isFormValid()) {
+      toast.error("Por favor, corrija os erros antes de enviar.")
+      return
+    }
 
     if (!store) return
 
@@ -107,8 +120,16 @@ export function NewRequestModalWarranty({
       produtos,
     }
 
-    onSubmit(payload)
-    toast.success("Ticket criado com sucesso!")
+    try {
+      setIsSubmitting(true)
+      await onSubmit(payload)
+      toast.success("Ticket criado com sucesso!")
+    } catch (error) {
+      toast.error("Erro ao criar ticket.")
+      console.error(error)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -133,7 +154,7 @@ export function NewRequestModalWarranty({
                 <Input
                   id="supplier"
                   value={fornecedor}
-                  onChange={(e) => setFornecedor(e.target.value)}
+                  onChange={(e) => setFornecedor(e.target.value.toUpperCase())}
                   placeholder="Nome do fornecedor"
                   required
                 />
@@ -144,7 +165,7 @@ export function NewRequestModalWarranty({
                 <Input
                   id="salesNote"
                   value={nota}
-                  onChange={(e) => setNota(e.target.value)}
+                  onChange={(e) => setNota(e.target.value.replace(/\D/g, ""))}
                   placeholder="Nota"
                   required
                   minLength={1}
@@ -162,7 +183,7 @@ export function NewRequestModalWarranty({
                 <Input
                   id="customerName"
                   value={nomeCliente}
-                  onChange={(e) => setNomeCliente(e.target.value)}
+                  onChange={(e) => setNomeCliente(e.target.value.toUpperCase())}
                   placeholder="Cliente"
                   required
                 />
@@ -250,7 +271,16 @@ export function NewRequestModalWarranty({
             </Button>
 
             {isFormValid() ? (
-              <Button type="submit">Enviar solicitação</Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Enviando...
+                  </>
+                ) : (
+                  "Enviar solicitação"
+                )}
+              </Button>
             ) : (
               <p className="text-red-500 text-sm flex items-center">
                 Preencha todos os campos obrigatórios corretamente para enviar.
